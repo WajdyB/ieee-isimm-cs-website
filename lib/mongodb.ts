@@ -19,12 +19,11 @@ export async function getDb(): Promise<Db> {
     if (!client) {
       console.log('Connecting to MongoDB...')
       
-      // Use minimal options for better compatibility
+      // Use only supported options for better compatibility
       const options = {
         maxPoolSize: 1, // Reduce connection pool for serverless
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
-        bufferMaxEntries: 0,
       }
       
       client = new MongoClient(mongoUri, options)
