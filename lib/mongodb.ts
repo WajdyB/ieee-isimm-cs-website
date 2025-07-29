@@ -7,6 +7,9 @@ if (!uri) {
   throw new Error('MONGODB_URI is not defined in environment variables')
 }
 
+// At this point, uri is guaranteed to be a string
+const mongoUri: string = uri
+
 let client: MongoClient | null = null
 let db: Db | null = null
 
@@ -15,7 +18,7 @@ export async function getDb(): Promise<Db> {
     if (db) return db
     if (!client) {
       console.log('Connecting to MongoDB...')
-      client = new MongoClient(uri)
+      client = new MongoClient(mongoUri)
       await client.connect()
       console.log('MongoDB connected successfully')
     }
