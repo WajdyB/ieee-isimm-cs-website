@@ -46,15 +46,29 @@ export default function HomePage() {
     const loadRecentEvents = async () => {
       try {
         setLoading(true)
+        console.log('Loading events from API...')
+        
+        // Test if API is reachable
+        const testResponse = await fetch('/api/test')
+        console.log('Test API Response:', await testResponse.json())
+        
         const response = await fetch('/api/events')
+        console.log('API Response status:', response.status)
+        
         const data = await response.json()
+        console.log('API Response data:', data)
         
         if (data.success && data.data) {
+          console.log('Events loaded successfully:', data.data.length, 'events')
           const recent = data.data.slice(0, 3)
           setRecentEvents(recent)
+        } else {
+          console.error('Failed to load events:', data.message)
+          setRecentEvents([])
         }
       } catch (error) {
         console.error('Error loading recent events:', error)
+        setRecentEvents([])
       } finally {
         setLoading(false)
       }

@@ -18,7 +18,16 @@ export async function getDb(): Promise<Db> {
     if (db) return db
     if (!client) {
       console.log('Connecting to MongoDB...')
-      client = new MongoClient(mongoUri)
+      
+      // Use minimal options for better compatibility
+      const options = {
+        maxPoolSize: 1, // Reduce connection pool for serverless
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+        bufferMaxEntries: 0,
+      }
+      
+      client = new MongoClient(mongoUri, options)
       await client.connect()
       console.log('MongoDB connected successfully')
     }
