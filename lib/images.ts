@@ -209,7 +209,7 @@ export const committeeImages = {
     {
       name: "Nour Touihri",
       position: "Chairwoman",
-      image: "/images/committee/nour-touihri.jpg", 
+      image: "/images/committee/nour-touihri.png", 
       facebook: "https://www.facebook.com/nour.touihri.520",
       email: "",
       linkedin: "https://www.linkedin.com/in/touihri-nour-57a386300/",
@@ -217,7 +217,7 @@ export const committeeImages = {
     {
       name: "Wassim Guesmi",
       position: "Vice Chair",
-      image: "/images/committee/wassim-guesmi.jpg", 
+      image: "/images/committee/wassim-guesmi.png", 
       facebook: "https://www.facebook.com/wassim.gasmi.186962",
       email: "",
       linkedin: "https://www.linkedin.com/in/wassim-gasmi-28a82b359/",
@@ -225,7 +225,7 @@ export const committeeImages = {
     {
       name: "Maram nammouchi",
       position: "Secretary",
-      image: "/images/committee/maram-namouchi.jpg", 
+      image: "/images/committee/maram-namouchi.png", 
       facebook: "https://www.facebook.com/namouchi.maram",
       email: "",
       linkedin: "https://www.linkedin.com/in/maram.namouchi/",
@@ -233,18 +233,18 @@ export const committeeImages = {
     {
       name: "Ahmed Benzarti",
       position: "Treasurer",
-      image: "/images/committee/ahmed-benzarti.jpg", 
+      image: "/images/committee/ahmed-benzarti.png", 
       facebook: "https://www.facebook.com/miniar.guizani",
       email: "",
       linkedin: "https://www.linkedin.com/in/ahmed.benzarti/",
     },
     {
-      name: "Mohamed Ayed",
+      name: "Aziz Amor",
       position: "Webmaster",
-      image: "/images/committee/mohamed-ayed.jpg", 
-      facebook: "https://www.facebook.com/sigmasigmaboysigma",
+      image: "/images/committee/aziz-amor.png", 
+      facebook: "https://www.facebook.com/aziz.amor.762883",
       email: "",
-      linkedin: "https://www.linkedin.com/in/mohamed-ayed-04b2a136a/",
+      linkedin: "https://www.linkedin.com/in/aziz.amor/",
     },
   ],
   

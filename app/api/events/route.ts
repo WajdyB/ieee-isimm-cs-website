@@ -4,9 +4,10 @@ import { ObjectId } from 'mongodb'
 
 // GET all events
 export async function GET() {
+  let db = null
   try {
     console.log('Fetching events from database...')
-    const db = await getDb()
+    db = await getDb()
     console.log('Database connection established')
     
     const events = await db.collection('events').find({}).sort({ created_at: -1 }).toArray()
@@ -21,7 +22,7 @@ export async function GET() {
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Internal server error', 
+        message: 'Failed to fetch events from database', 
         error: error instanceof Error ? error.message : 'Unknown error',
         details: process.env.NODE_ENV === 'development' ? error : undefined
       },
@@ -32,6 +33,7 @@ export async function GET() {
 
 // POST new event
 export async function POST(request: NextRequest) {
+  let db = null
   try {
     const eventData = await request.json()
 
@@ -44,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Creating new event...')
-    const db = await getDb()
+    db = await getDb()
     const now = new Date()
     const event = {
       title: eventData.title,
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        message: 'Internal server error', 
+        message: 'Failed to create event', 
         error: error instanceof Error ? error.message : 'Unknown error',
         details: process.env.NODE_ENV === 'development' ? error : undefined
       },
