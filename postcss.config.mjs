@@ -1,8 +1,11 @@
-   /** @type {import('next').NextConfig} */
-   const nextConfig = {
-    images: {
-      unoptimized: true,
-    },
-  }
+/** @type {import('postcss-load-config').Config} */
+const config = {
+  plugins: {
+    tailwindcss: {},
+  },
+  images: {
+    unoptimized: true,
+  },
+};
 
-  export default nextConfig
+export default config;
