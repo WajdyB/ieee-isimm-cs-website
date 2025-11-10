@@ -136,7 +136,7 @@ export default function HomePage() {
               <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors duration-300">
                 <Users className="h-8 w-8 text-orange-600" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">50+</h3>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">40+</h3>
               <p className="text-gray-600">Active Members</p>
             </div>
             <div className="text-center group">
@@ -150,7 +150,7 @@ export default function HomePage() {
               <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors duration-300">
                 <Award className="h-8 w-8 text-orange-600" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">10+</h3>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">3+</h3>
               <p className="text-gray-600">Awards Won</p>
             </div>
           </div>
