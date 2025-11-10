@@ -250,8 +250,8 @@ export const committeeImages = {
   
   // Chairwoman photo for leadership message section
   chair: {
-    src: "/images/committee/nour-touihri.jpg", 
-    alt: "Dorra Barbria - Chairwoman",
+    src: "/images/committee/nour-touihri.png", 
+    alt: "Nour Touihri - Chairwoman",
     width: 80,
     height: 80,
     className: "w-16 h-16 rounded-full object-cover mr-4",

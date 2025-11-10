@@ -7,9 +7,23 @@ export const logos = {
     height: 75,
     className: "h-16 w-auto",
   },
+  csWhite: {
+    src: "/logos/logo-cs-isimm-white.png",
+    alt: "CS ISIMM Logo (white)",
+    width: 180,
+    height: 75,
+    className: "h-16 w-auto",
+  },
   ieee: {
     src: "/logos/ieee-tunisia-logo.png",
     alt: "IEEE Tunisia Section",
+    width: 180,
+    height: 75,
+    className: "h-16 w-auto",
+  },
+  ieeeWhite: {
+    src: "/logos/logo-tunisia-section-white.png",
+    alt: "IEEE Tunisia Section (white)",
     width: 180,
     height: 75,
     className: "h-16 w-auto",

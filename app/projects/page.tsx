@@ -22,30 +22,29 @@ const projects: Project[] = [
   {
     title: "AI Serenity Companion",
     description:
-      "A cross-platform mindfulness assistant featuring guided meditations, sentiment tracking, and on-device inference demos built for our AI Serenity initiative.",
-    image: "/images/events/ai-serenity.jpg",
-    github: "https://github.com/ieee-cs-isimm/ai-serenity-companion",
-    live: "https://ai-serenity.cs-isimm.org",
-    tech: ["Next.js", "TypeScript", "TensorFlow.js", "Tailwind CSS"],
+      "Description here",
+    image: "/images/placeholder.jpg",
+    github: "https://github.com/",
+    tech: ["Next.js", "TypeScript", "Tailwind CSS"],
     role: "Product Squad · 6 members",
     year: "2024",
   },
   {
     title: "Open Source Starter Kit",
     description:
-      "An onboarding toolkit that streamlines open-source contributions for new members with curated issue feeds, best practices, and GitHub automation.",
-    image: "/images/events/open-source.jpg",
-    github: "https://github.com/ieee-cs-isimm/open-source-starter-kit",
-    tech: ["Next.js", "Supabase", "Radix UI", "SonarQube"],
+      "Description here",
+    image: "/images/placeholder.jpg",
+    github: "https://github.com/",
+    tech: ["Next.js", "Supabase", "Radix UI"],
     role: "Platform Guild · 4 members",
     year: "2023",
   },
   {
     title: "CS Hack Liveboard",
     description:
-      "Real-time scoreboard and submission review dashboard used during CS Hack and Xtreem competitions, complete with socket-based updates and analytics.",
-    image: "/images/events/cs-hack.jpg",
-    github: "https://github.com/ieee-cs-isimm/cs-hack-liveboard",
+      "Description here",
+    image: "/images/placeholder.jpg",
+    github: "https://github.com/",
     tech: ["Next.js", "WebSockets", "MongoDB", "Shadcn UI"],
     role: "Hackathon Ops · 5 members",
     year: "2022",
@@ -178,15 +177,6 @@ export default function ProjectsPage() {
                         View Repository
                       </Link>
                     </Button>
-
-                    {project.live ? (
-                      <Button asChild variant="outline" className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white">
-                        <Link href={project.live} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Live Demo
-                        </Link>
-                      </Button>
-                    ) : null}
                   </div>
                 </div>
               </article>
@@ -206,10 +196,12 @@ export default function ProjectsPage() {
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button asChild size="lg" variant="secondary" className="bg-white text-orange-600 hover:bg-gray-100">
-                <Link href="mailto:cs@isimm.org">Reach the Team</Link>
+                <Link href="https://www.facebook.com/ieee.cs.isimm" target="_blank" rel="noopener noreferrer">
+                  Follow Us
+                </Link>
               </Button>
               <Button asChild size="lg"  variant="secondary" className="bg-white text-orange-600 hover:bg-gray-100">
-                <Link href="https://github.com/ieee-cs-isimm" target="_blank" rel="noopener noreferrer">
+                <Link href="https://github.com/" target="_blank" rel="noopener noreferrer">
                   Explore GitHub
                 </Link>
               </Button>

@@ -327,7 +327,8 @@ export default function EventsPage() {
               for the latest updates.
             </p>
             <Button size="lg" variant="secondary" className="bg-white text-orange-600 hover:bg-gray-100">
-              Subscribe to Updates
+              Follow Us
+              
             </Button>
           </div>
         </div>

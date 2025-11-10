@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Target, Eye, Heart, Users, Lightbulb, Globe } from "lucide-react"
 import { aboutImages, getGalleryImages } from "@/lib/images"
 
@@ -186,12 +187,22 @@ export default function AboutPage() {
               solutions for tomorrow's challenges.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-orange-500 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
+              <Link
+                href="https://www.facebook.com/ieee.cs.isimm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white text-orange-500 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200"
+              >
                 Get Involved
-              </button>
-              <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-500 transition-colors duration-200">
+              </Link>
+              <Link
+                href="https://www.facebook.com/ieee.cs.isimm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-orange-500 transition-colors duration-200"
+              >
                 Contact Us
-              </button>
+              </Link>
             </div>
           </div>
         </div>

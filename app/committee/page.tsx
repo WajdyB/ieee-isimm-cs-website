@@ -134,19 +134,19 @@ export default function CommitteePage() {
                 professionals. We believe that through collaboration, innovation, and continuous learning, we can shape
                 the future of technology and create meaningful impact in our field and society."
               </p>
-              <div className="flex items-center justify-center">
-                <Image
-                  src={committeeImages.chair.src}
-                  alt={committeeImages.chair.alt}
-                  width={committeeImages.chair.width}
-                  height={committeeImages.chair.height}
-                  className={committeeImages.chair.className}
-                />
-                <div className="text-left">
-                  <p className="font-semibold text-gray-900">Nour Touihri</p>
-                  <p className="text-orange-600">Chairwoman, CS ISIMM</p>
+                <div className="flex items-center justify-center">
+                  <Image
+                    src={committeeImages.chair.src}
+                    alt={committeeImages.chair.alt}
+                    width={committeeImages.chair.width}
+                    height={committeeImages.chair.height}
+                    className={committeeImages.chair.className}
+                  />
+                  <div className="text-left">
+                    <p className="font-semibold text-gray-900">Nour Touihri</p>
+                    <p className="text-orange-600">Chairwoman, CS ISIMM</p>
+                  </div>
                 </div>
-              </div>
             </div>
           </div>
         </div>
@@ -161,9 +161,14 @@ export default function CommitteePage() {
             Join our team and help us advance computing excellence in our community. We're always looking for
             passionate individuals to contribute to our technical mission and educational initiatives.
             </p>
-            <button className="bg-white text-orange-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200">
+            <Link
+              href="https://www.facebook.com/ieee.cs.isimm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-white text-orange-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200"
+            >
               Contact Us
-            </button>
+            </Link>
           </div>
         </div>
       </section>
