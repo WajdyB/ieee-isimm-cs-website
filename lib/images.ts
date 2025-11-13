@@ -234,7 +234,7 @@ export const committeeImages = {
       name: "Ahmed Benzarti",
       position: "Treasurer",
       image: "/images/committee/ahmed-benzarti.png", 
-      facebook: "https://www.facebook.com/miniar.guizani",
+      facebook: "https://www.facebook.com/ahmed.benzarti.2025",
       email: "",
       linkedin: "https://www.linkedin.com/in/ahmed.benzarti/",
     },
