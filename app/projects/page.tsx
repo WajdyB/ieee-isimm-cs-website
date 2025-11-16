@@ -1,58 +1,58 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Github, ExternalLink, Users, Sparkles, Layers } from "lucide-react"
+import { Github, ExternalLink, Users, Sparkles, Layers, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
 
 type Project = {
   title: string
   description: string
-  image: string
+  images: string[]
   github: string
+  vtools: string
   live?: string
-  tech: string[]
-  role: string
-  year: string
 }
 
 const projects: Project[] = [
   {
-    title: "AI Serenity Companion",
-    description:
-      "Description here",
-    image: "/images/placeholder.jpg",
-    github: "https://github.com/",
-    tech: ["Next.js", "TypeScript", "Tailwind CSS"],
-    role: "Product Squad · 6 members",
-    year: "2024",
+    title: "CS Twinstack Web Application",
+    description: `We are thrilled to announce the successful launch of the CS Twinstack Web Application, a landmark project born from the collaborative spirit of the IEEE student branches at ENICAR SB and ISIMM SB. This application represents the culmination of the CS Twinstack Bootcamp, transforming it from a time-bound event into a permanent, scalable educational resource.
+                 This project is a testament to the power of collaboration. It was jointly conceived and developed by IEEE CS Chapter ISIMMSB IEEE CS  Chapter Enicar SB`,
+    images: [
+      "/images/projects/twinstack3.png",
+      "/images/projects/twinstack2.png",
+      "/images/projects/twinstack1.png",
+    ],
+    github: "https://github.com/CS-ISIMM-SBC/CS_Twinstack_webapp",
+    vtools: "https://events.vtools.ieee.org/m/514969",
+    live: "https://cstwinstack.vercel.app/",
   },
   {
-    title: "Open Source Starter Kit",
-    description:
-      "Description here",
-    image: "/images/placeholder.jpg",
-    github: "https://github.com/",
-    tech: ["Next.js", "Supabase", "Radix UI"],
-    role: "Platform Guild · 4 members",
-    year: "2023",
-  },
-  {
-    title: "CS Hack Liveboard",
-    description:
-      "Description here",
-    image: "/images/placeholder.jpg",
-    github: "https://github.com/",
-    tech: ["Next.js", "WebSockets", "MongoDB", "Shadcn UI"],
-    role: "Hackathon Ops · 5 members",
-    year: "2022",
+    title: "Project Two",
+    description: "Another short description about the second project. Replace later with accurate content about features, tech stack, and impact.",
+    images: [
+      "/projects/project2-1.jpg",
+      "/projects/project2-2.jpg",
+      "/projects/project2-3.jpg",
+    ],
+    github: "https://github.com/your-org/project-two",
+    vtools: "https://vtools.ieee.org/",
+    live: "https://example.com/project-two",
   },
 ]
 
 export default function ProjectsPage() {
   const observerRef = useRef<IntersectionObserver | null>(null)
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -134,25 +134,32 @@ export default function ProjectsPage() {
             </p>
           </div>
 
-          <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
             {projects.map((project, index) => (
               <article
-                key={project.title}
-                className="animate-on-scroll flex h-full flex-col overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
+                key={index}
+                onClick={() => setOpenIndex(index)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") setOpenIndex(index)
+                }}
+                className="animate-on-scroll flex h-full flex-col overflow-visible rounded-2xl border border-orange-100 bg-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer"
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                <div className="relative h-56 overflow-hidden">
-                  <Image
-                    src={project.image}
-                    alt={`${project.title} preview`}
-                    fill
-                    className="object-cover transition-transform duration-500 hover:scale-110"
-                    sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 flex items-center space-x-3 text-sm font-medium text-white">
-                    <span className="rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm">{project.year}</span>
-                    <span className="rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm">{project.role}</span>
+                <div className="relative overflow-hidden">
+                  <div className="flex gap-3 overflow-x-auto p-3">
+                    {project.images.map((src, idx) => (
+                      <div key={idx} className="relative h-40 w-64 shrink-0 overflow-hidden rounded-xl border border-orange-100">
+                        <Image
+                          src={src}
+                          alt={`${project.title} image ${idx + 1}`}
+                          fill
+                          className="object-cover"
+                          sizes="256px"
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -162,19 +169,39 @@ export default function ProjectsPage() {
                     <p className="mt-3 text-gray-600 leading-relaxed">{project.description}</p>
                   </div>
 
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {project.tech.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="bg-orange-100 text-orange-600">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <div className="mt-8 flex flex-wrap gap-3">
-                    <Button asChild className="bg-orange-500 hover:bg-orange-600">
-                      <Link href={project.github} target="_blank" rel="noopener noreferrer">
+                  <div className="mt-8 flex items-center gap-2 flex-wrap xl:flex-nowrap">
+                    {project.live && (
+                      <Button
+                        asChild
+                        variant="secondary"
+                        className="bg-orange-50 text-orange-700 hover:bg-orange-100"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Link href={project.live} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                          <Globe className="mr-2 h-4 w-4" />
+                          Live Demo
+                        </Link>
+                      </Button>
+                    )}
+                    <Button
+                      asChild
+                      className="bg-orange-500 hover:bg-orange-600"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Link href={project.github} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
                         <Github className="mr-2 h-4 w-4" />
                         View Repository
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="secondary"
+                      className="bg-orange-50 text-orange-700 hover:bg-orange-100"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Link href={project.vtools} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        IEEE vTools
                       </Link>
                     </Button>
                   </div>
@@ -182,6 +209,71 @@ export default function ProjectsPage() {
               </article>
             ))}
           </div>
+
+          <Dialog open={openIndex !== null} onOpenChange={(isOpen) => !isOpen && setOpenIndex(null)}>
+            <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-hidden sm:w-[90vw]">
+              {openIndex !== null && (
+                <div className="space-y-6 overflow-y-auto max-h-[90vh] p-2 sm:p-4">
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Left: Gallery */}
+                    <div className="relative overflow-hidden rounded-xl border border-orange-100">
+                      <div className="flex gap-4 overflow-x-auto p-3 sm:p-4">
+                        {projects[openIndex].images.map((src, idx) => (
+                          <div
+                            key={idx}
+                            className="relative shrink-0 overflow-hidden rounded-lg bg-gray-100 h-[32vh] sm:h-[40vh] w-[85vw] sm:w-[70vw] lg:w-full"
+                          >
+                            <Image
+                              src={src}
+                              alt={`${projects[openIndex].title} image ${idx + 1}`}
+                              fill
+                              className="object-contain"
+                              sizes="(min-width: 1024px) 50vw, (min-width: 640px) 70vw, 85vw"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right: Details */}
+                    <div className="flex flex-col">
+                      <DialogHeader className="p-0">
+                        <DialogTitle className="text-2xl">{projects[openIndex].title}</DialogTitle>
+                        <DialogDescription asChild>
+                          <div className="text-base leading-relaxed mt-2 max-w-prose text-gray-600">
+                            {projects[openIndex].description}
+                          </div>
+                        </DialogDescription>
+                      </DialogHeader>
+
+                      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {projects[openIndex].live && (
+                          <Button asChild variant="secondary" className="bg-orange-50 text-orange-700 hover:bg-orange-100">
+                            <Link href={projects[openIndex].live!} target="_blank" rel="noopener noreferrer">
+                              <Globe className="mr-2 h-4 w-4" />
+                              Live Demo
+                            </Link>
+                          </Button>
+                        )}
+                        <Button asChild className="bg-orange-500 hover:bg-orange-600">
+                          <Link href={projects[openIndex].github} target="_blank" rel="noopener noreferrer">
+                            <Github className="mr-2 h-4 w-4" />
+                            View Repository
+                          </Link>
+                        </Button>
+                        <Button asChild variant="secondary" className="bg-orange-50 text-orange-700 hover:bg-orange-100">
+                          <Link href={projects[openIndex].vtools} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            IEEE vTools
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
       </section>
 
