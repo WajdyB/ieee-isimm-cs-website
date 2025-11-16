@@ -25,8 +25,7 @@ type Project = {
 const projects: Project[] = [
   {
     title: "CS Twinstack Web Application",
-    description: `We are thrilled to announce the successful launch of the CS Twinstack Web Application, a landmark project born from the collaborative spirit of the IEEE student branches at ENICAR SB and ISIMM SB. This application represents the culmination of the CS Twinstack Bootcamp, transforming it from a time-bound event into a permanent, scalable educational resource.
-                 This project is a testament to the power of collaboration. It was jointly conceived and developed by IEEE CS Chapter ISIMMSB IEEE CS  Chapter Enicar SB`,
+    description: `We are thrilled to announce the successful launch of the CS Twinstack Web Application, a landmark project born from the collaborative spirit of the IEEE student branches at ENICAR SB and ISIMM SB. This application represents the culmination of the CS Twinstack Bootcamp, transforming it from a time-bound event into a permanent, scalable educational resource. This project is a testament to the power of collaboration. It was jointly conceived and developed by IEEE CS Chapter ISIMMSB IEEE CS  Chapter Enicar SB`,
     images: [
       "/images/projects/twinstack3.png",
       "/images/projects/twinstack2.png",
@@ -38,7 +37,38 @@ const projects: Project[] = [
   },
   {
     title: "Project Two",
-    description: "Another short description about the second project. Replace later with accurate content about features, tech stack, and impact.",
+    description: `🤖 The Challenge
+Theme: Mental Health Text Classification
+Goal: Build an AI model to classify forum posts into Depression, PTSD, Anxiety, and Others.
+Challenge: Handle imbalanced, noisy text data with creative preprocessing and augmentation.
+📂 Dataset
+train.csv – labeled data
+test.csv – unlabeled posts
+SampleSubmission.csv – submission template
+Each record: id, title, content.
+🛠️ Tools & Workflow
+Preprocessing: pandas, numpy, regex, nltk, spaCy
+Modeling: Logistic Regression, Random Forest, LSTM, Transformers (BERT, RoBERTa)
+Imbalance: SMOTE, class weights, augmentation
+Evaluation: Accuracy (main), F1-score, precision, recall
+📊 Evaluation
+Official metric:
+Accuracy = Correct Predictions / Total Predictions
+Accuracy = \\frac{Correct\\ Predictions}{Total\\ Predictions}
+We also considered F1-score, recall, and confusion matrices for deeper insights.
+📤 Submission
+CSV format:
+id,target
+123,depression
+124,anxiety
+125,ptsd
+Strictly followed rules (id + target only).
+🏆 Outcomes
+Gained hands-on Kaggle experience
+Pitched solutions highlighting results & innovation
+Strengthened collaboration between WIE & CS Chapter
+Developed skills in AI, NLP, teamwork
+Winners honored with awards & recognition`,
     images: [
       "/projects/project2-1.jpg",
       "/projects/project2-2.jpg",
@@ -130,7 +160,7 @@ export default function ProjectsPage() {
           <div className="mb-12 text-center animate-on-scroll">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Featured Projects</h2>
             <p className="mt-4 text-lg text-gray-600">
-              A snapshot of the engineering work we deliver every season. Dive into the codebases and remix them for your own clubs.
+              A snapshot of the engineering work we deliver every season. Dive into the codebases  and Discover our work.
             </p>
           </div>
 
@@ -166,7 +196,9 @@ export default function ProjectsPage() {
                 <div className="flex flex-1 flex-col p-6">
                   <div>
                     <h3 className="text-2xl font-semibold text-gray-900">{project.title}</h3>
-                    <p className="mt-3 text-gray-600 leading-relaxed">{project.description}</p>
+                    <div className="mt-3 text-gray-600 leading-relaxed whitespace-pre-wrap max-h-40 overflow-y-auto pr-1">
+                      {project.description}
+                    </div>
                   </div>
 
                   <div className="mt-8 flex items-center gap-2 flex-wrap xl:flex-nowrap">
@@ -174,7 +206,8 @@ export default function ProjectsPage() {
                       <Button
                         asChild
                         variant="secondary"
-                        className="bg-orange-50 text-orange-700 hover:bg-orange-100"
+                        size="sm"
+                        className="bg-orange-50 text-orange-700 hover:bg-orange-100 px-3"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Link href={project.live} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -185,7 +218,8 @@ export default function ProjectsPage() {
                     )}
                     <Button
                       asChild
-                      className="bg-orange-500 hover:bg-orange-600"
+                      size="sm"
+                      className="bg-orange-500 hover:bg-orange-600 px-3"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Link href={project.github} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -196,7 +230,8 @@ export default function ProjectsPage() {
                     <Button
                       asChild
                       variant="secondary"
-                      className="bg-orange-50 text-orange-700 hover:bg-orange-100"
+                      size="sm"
+                      className="bg-orange-50 text-orange-700 hover:bg-orange-100 px-3"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Link href={project.vtools} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -240,7 +275,7 @@ export default function ProjectsPage() {
                       <DialogHeader className="p-0">
                         <DialogTitle className="text-2xl">{projects[openIndex].title}</DialogTitle>
                         <DialogDescription asChild>
-                          <div className="text-base leading-relaxed mt-2 max-w-prose text-gray-600">
+                          <div className="text-base leading-relaxed mt-2 max-w-prose text-gray-600 whitespace-pre-wrap">
                             {projects[openIndex].description}
                           </div>
                         </DialogDescription>
@@ -293,7 +328,7 @@ export default function ProjectsPage() {
                 </Link>
               </Button>
               <Button asChild size="lg"  variant="secondary" className="bg-white text-orange-600 hover:bg-gray-100">
-                <Link href="https://github.com/" target="_blank" rel="noopener noreferrer">
+                <Link href="https://github.com/CS-ISIMM-SBC" target="_blank" rel="noopener noreferrer">
                   Explore GitHub
                 </Link>
               </Button>
