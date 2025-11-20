@@ -15,6 +15,7 @@ const Header = () => {
     { name: "Executive Committee", href: "/committee" },
     { name: "Events", href: "/events" },
     { name: "Projects", href: "/projects" },
+    { name: "Moments", href: "/moments" },
     { name: "Contact", href: "/contact" },
   ]
 

@@ -36,47 +36,19 @@ const projects: Project[] = [
     live: "https://cstwinstack.vercel.app/",
   },
   {
-    title: "Project Two",
-    description: `🤖 The Challenge
-Theme: Mental Health Text Classification
-Goal: Build an AI model to classify forum posts into Depression, PTSD, Anxiety, and Others.
-Challenge: Handle imbalanced, noisy text data with creative preprocessing and augmentation.
-📂 Dataset
-train.csv – labeled data
-test.csv – unlabeled posts
-SampleSubmission.csv – submission template
-Each record: id, title, content.
-🛠️ Tools & Workflow
-Preprocessing: pandas, numpy, regex, nltk, spaCy
-Modeling: Logistic Regression, Random Forest, LSTM, Transformers (BERT, RoBERTa)
-Imbalance: SMOTE, class weights, augmentation
-Evaluation: Accuracy (main), F1-score, precision, recall
-📊 Evaluation
-Official metric:
-Accuracy = Correct Predictions / Total Predictions
-Accuracy = \\frac{Correct\\ Predictions}{Total\\ Predictions}
-We also considered F1-score, recall, and confusion matrices for deeper insights.
-📤 Submission
-CSV format:
-id,target
-123,depression
-124,anxiety
-125,ptsd
-Strictly followed rules (id + target only).
-🏆 Outcomes
-Gained hands-on Kaggle experience
-Pitched solutions highlighting results & innovation
-Strengthened collaboration between WIE & CS Chapter
-Developed skills in AI, NLP, teamwork
-Winners honored with awards & recognition`,
+    title: "Dragon AI Path",
+    description: `The AI Dragon Path is an exciting Kaggle competition designed for students passionate about machine learning 🤖. Participants competed in teams of two, building their own AI models to classify mental health forum posts into categories like depression, anxiety, PTSD, and more.
+Organized by IEEE ISIMM SB CS Chapter in collaboration with ESSAI ML Club, and hosted at Arabian Coffee – Monastir ☕, the event provided a real-world platform for aspiring data scientists to showcase their skills.
+As the final chapter of our Yin-Yang 🌓 Chinese-themed AI Serenity Bootcamp, the challenge embraced values of balance, strategy, and mastery—core to both martial arts and AI development. Participants refined their models, adapted their techniques, and engaged in a thrilling live leaderboard 📊 battle.
+The ambiance was enriched with Chinese-inspired decorations 🏮, relaxing coffee breaks ☕🍪, and a stunning musical performance by Binary Beats 🎶, ISIMM’s beloved music club.
+At 4:30 PM, the competition concluded, and the top 5 teams presented their solutions in front of a jury 🎤.`,
     images: [
-      "/projects/project2-1.jpg",
-      "/projects/project2-2.jpg",
-      "/projects/project2-3.jpg",
+      "/images/projects/dragon-ai-1.png",
+      "/images/projects/dragon-ai-2.png",
+      "/images/projects/dragon-ai-3.png",
     ],
-    github: "https://github.com/your-org/project-two",
-    vtools: "https://vtools.ieee.org/",
-    live: "https://example.com/project-two",
+    github: "https://github.com/CS-ISIMM-SBC/AI-Dragon-Path",
+    vtools: "https://vtools.ieee.org/"
   },
 ]
 

@@ -239,12 +239,12 @@ export const committeeImages = {
       linkedin: "https://www.linkedin.com/in/ahmed.benzarti/",
     },
     {
-      name: "Aziz Amor",
+      name: "Wassim Zili",
       position: "Webmaster",
-      image: "/images/committee/aziz-amor.png", 
-      facebook: "https://www.facebook.com/aziz.amor.762883",
+      image: "/images/committee/webmaster.png", 
+      facebook: "https://www.facebook.com/wassim.zili.1",
       email: "",
-      linkedin: "https://www.linkedin.com/in/aziz.amor/",
+      linkedin: "https://www.linkedin.com/in/wassim-zili-88646a34a/",
     },
   ],
   
