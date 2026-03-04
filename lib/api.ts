@@ -75,4 +75,73 @@ export async function deleteEvent(id: string) {
   })
 
   return response.json()
+}
+
+// Members API
+export interface MemberData {
+  firstName: string
+  lastName: string
+  email: string
+  xp?: number
+}
+
+export async function getMembers() {
+  const response = await fetch('/api/members')
+  return response.json()
+}
+
+export async function getMember(id: string) {
+  const response = await fetch(`/api/members/${id}`)
+  return response.json()
+}
+
+export async function createMember(memberData: MemberData) {
+  const response = await fetch('/api/members', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(memberData),
+  })
+  return response.json()
+}
+
+export async function updateMember(id: string, memberData: Partial<MemberData>) {
+  const response = await fetch(`/api/members/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(memberData),
+  })
+  return response.json()
+}
+
+export async function deleteMember(id: string) {
+  const response = await fetch(`/api/members/${id}`, {
+    method: 'DELETE',
+  })
+  return response.json()
+}
+
+export async function addXP(id: string, xpToAdd: number, reason?: string, eventName?: string) {
+  const response = await fetch(`/api/members/${id}/xp`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ xpToAdd, reason, eventName }),
+  })
+  return response.json()
+}
+
+export async function loginMember(email: string, password: string) {
+  const response = await fetch('/api/members/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  })
+  return response.json()
 } 

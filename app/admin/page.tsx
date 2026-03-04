@@ -10,6 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Edit, Trash2, Upload, Eye, EyeOff, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { loginAdmin, getEvents, createEvent, deleteEvent, uploadImages, type EventData } from "@/lib/api"
+import XPManagement from "@/components/admin/xp-management"
+import { toast } from "sonner"
+import { Toaster } from "@/components/ui/sonner"
 
 // Add local Event type for MongoDB
 interface Event {
@@ -65,7 +68,7 @@ export default function AdminPage() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert("Please enter both email and password")
+      toast.error("Please enter both email and password")
       return
     }
 
@@ -77,12 +80,13 @@ export default function AdminPage() {
         setIsAuthenticated(true)
         setEmail("")
         setPassword("")
+        toast.success("Login successful!")
       } else {
-        alert(response.message || "Login failed")
+        toast.error(response.message || "Login failed")
       }
     } catch (error) {
       console.error('Login error:', error)
-      alert("Login failed. Please try again.")
+      toast.error("Login failed. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -95,7 +99,7 @@ export default function AdminPage() {
 
   const handleAddEvent = async () => {
     if (!newEvent.title || !newEvent.description || !newEvent.date || !newEvent.location) {
-      alert("Please fill in all required fields")
+      toast.error("Please fill in all required fields")
       return
     }
 
@@ -113,36 +117,32 @@ export default function AdminPage() {
           attendees: 0,
           images: [],
         })
-        alert("Event created successfully!")
+        toast.success("Event created successfully!")
       } else {
-        alert(response.message || "Failed to create event")
+        toast.error(response.message || "Failed to create event")
       }
     } catch (error) {
       console.error('Error creating event:', error)
-      alert("Failed to create event. Please try again.")
+      toast.error("Failed to create event. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
   const handleDeleteEvent = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this event?")) {
-      return
-    }
-
     try {
       setLoading(true)
       const response = await deleteEvent(id)
       
       if (response.success) {
         setEvents(events.filter((e) => e._id !== id))
-        alert("Event deleted successfully!")
+        toast.success("Event deleted successfully!")
       } else {
-        alert(response.message || "Failed to delete event")
+        toast.error(response.message || "Failed to delete event")
       }
     } catch (error) {
       console.error('Error deleting event:', error)
-      alert("Failed to delete event. Please try again.")
+      toast.error("Failed to delete event. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -168,12 +168,13 @@ export default function AdminPage() {
           ...newEvent,
           images: [...(newEvent.images || []), ...uploadedUrls],
         })
+        toast.success(`${uploadedUrls.length} image(s) uploaded successfully!`)
       } else {
-        alert('Failed to upload images: ' + uploadResponse.message)
+        toast.error('Failed to upload images: ' + uploadResponse.message)
       }
     } catch (error) {
       console.error('Error uploading images:', error)
-      alert('Failed to upload images. Please try again.')
+      toast.error('Failed to upload images. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -188,8 +189,10 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="w-full max-w-md">
+      <>
+        <Toaster position="top-center" />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Admin Login</CardTitle>
             <CardDescription>Enter your credentials to access the admin dashboard</CardDescription>
@@ -237,11 +240,14 @@ export default function AdminPage() {
           </CardContent>
         </Card>
       </div>
+      </>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Toaster position="top-center" />
+      <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
@@ -254,6 +260,7 @@ export default function AdminPage() {
           <TabsList className="bg-white">
             <TabsTrigger value="events" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Manage Events</TabsTrigger>
             <TabsTrigger value="add-event" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Add New Event</TabsTrigger>
+            <TabsTrigger value="members" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">XP System</TabsTrigger>
           </TabsList>
 
           <TabsContent value="events" className="space-y-6">
@@ -391,8 +398,13 @@ export default function AdminPage() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="members">
+            <XPManagement />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
+    </>
   )
 }

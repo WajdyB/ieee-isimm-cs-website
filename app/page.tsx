@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowRight, Users, Calendar, Award, Loader2 } from "lucide-react"
+import { ArrowRight, Brain, Code, Shield, Smartphone, Database, Cpu, Loader2 } from "lucide-react"
 
 interface Event {
   _id: string
@@ -112,14 +112,14 @@ export default function HomePage() {
               </div>
             </div>
             <div className="animate-slide-in-right">
-              <div className="relative">
+              <div className="relative max-w-md mx-auto">
                 <div className="absolute inset-0 bg-orange-200 rounded-3xl transform rotate-6"></div>
                 <Image
                   src="/images/home/hero-image.png"
                   alt="CS ISIMM Members"
-                  width={600}
-                  height={500}
-                  className="relative rounded-3xl shadow-2xl object-cover w-full h-auto"
+                  width={400}
+                  height={350}
+                  className="relative rounded-3xl shadow-2xl object-contain w-full h-auto"
                   priority
                 />
               </div>
@@ -128,31 +128,70 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 bg-white">
+      {/* Focus Areas Section */}
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 animate-on-scroll">
-            <div className="text-center group">
-              <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors duration-300">
-                <Users className="h-8 w-8 text-orange-600" />
+          <div className="text-center mb-12 animate-on-scroll">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              What We <span className="text-orange-500">Explore</span>
+            </h2>
+            <p className="text-xl text-gray-600">Dive into cutting-edge technologies and innovative solutions</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Brain,
+                title: "Artificial Intelligence",
+                description: "Exploring machine learning, deep learning, and AI applications",
+                gradient: "from-orange-500 to-red-500",
+              },
+              {
+                icon: Code,
+                title: "Web Development",
+                description: "Building modern, responsive web applications and platforms",
+                gradient: "from-orange-500 to-yellow-500",
+              },
+              {
+                icon: Shield,
+                title: "Cybersecurity",
+                description: "Protecting systems and learning ethical hacking techniques",
+                gradient: "from-orange-600 to-orange-700",
+              },
+              {
+                icon: Smartphone,
+                title: "Mobile Development",
+                description: "Creating cross-platform mobile apps with modern frameworks",
+                gradient: "from-orange-500 to-amber-500",
+              },
+              {
+                icon: Database,
+                title: "Data Science",
+                description: "Analyzing data and extracting meaningful insights",
+                gradient: "from-orange-600 to-red-600",
+              },
+              {
+                icon: Cpu,
+                title: "Competitive Programming",
+                description: "Sharpening problem-solving skills through coding challenges",
+                gradient: "from-orange-500 to-orange-600",
+              },
+            ].map((area, index) => (
+              <div
+                key={index}
+                className="group relative bg-gradient-to-br from-white to-orange-50 rounded-2xl p-6 border-2 border-orange-100 hover:border-orange-300 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 animate-on-scroll"
+              >
+                <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${area.gradient} mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                  <area.icon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-orange-600 transition-colors duration-300">
+                  {area.title}
+                </h3>
+                <p className="text-gray-600 leading-relaxed">
+                  {area.description}
+                </p>
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-orange-600 rounded-b-2xl transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
               </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">40+</h3>
-              <p className="text-gray-600">Active Members</p>
-            </div>
-            <div className="text-center group">
-              <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors duration-300">
-                <Calendar className="h-8 w-8 text-orange-600" />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">25+</h3>
-              <p className="text-gray-600">Events Organized</p>
-            </div>
-            <div className="text-center group">
-              <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors duration-300">
-                <Award className="h-8 w-8 text-orange-600" />
-              </div>
-              <h3 className="text-3xl font-bold text-gray-900 mb-2">3+</h3>
-              <p className="text-gray-600">Awards Won</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -210,7 +249,7 @@ export default function HomePage() {
                     visibility: 'visible', 
                     opacity: 1,
                     position: 'relative',
-                    zIndex: 1000
+                    zIndex: 1
                   }}
                 >
                   <div className="relative overflow-hidden">

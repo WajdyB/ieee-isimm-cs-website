@@ -3,15 +3,11 @@
 import { useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Target, Eye, Heart, Users, Lightbulb, Globe } from "lucide-react"
-import { aboutImages, getGalleryImages } from "@/lib/images"
+import { Target, Eye, Heart, Users, Lightbulb, Globe, Rocket, TrendingUp, Award, Network, CheckCircle2 } from "lucide-react"
+import { aboutImages } from "@/lib/images"
 
 export default function AboutPage() {
   const observerRef = useRef<IntersectionObserver | null>(null)
-  const galleryImages = getGalleryImages()
-
-  // Debug: Log the number of images loaded
-  console.log('Gallery images loaded:', galleryImages.length)
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -73,7 +69,7 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="animate-on-scroll">
-              <div className="relative">
+              <div className="relative max-w-md mx-auto">
                 <div className="absolute inset-0 bg-orange-200 rounded-3xl transform -rotate-6"></div>
                 <Image
                   src={aboutImages.mission.src}
@@ -147,31 +143,153 @@ export default function AboutPage() {
       </section>
 
 
-      {/* Photo Gallery */}
+      {/* Strategic Roadmap */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 animate-on-scroll">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Journey in Pictures</h2>
-            <p className="text-xl text-gray-600">Moments that define our community and achievements</p>
-            <p className="text-sm text-gray-500 mt-2">Showing {galleryImages.length} images</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Our Strategic <span className="text-orange-500">Roadmap</span>
+            </h2>
+            <p className="text-xl text-gray-600">From vision to impact - our journey of growth and innovation</p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-            {galleryImages.map((image, index) => (
-              <div key={index} className="relative group overflow-hidden rounded-lg animate-on-scroll bg-gray-100">
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  width={image.width}
-                  height={image.height}
-                  className="w-full h-48 object-contain group-hover:scale-110 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-orange-600/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div className="text-white text-center">
-                    <p className="font-semibold">{image.title}</p>
+
+          {/* Strategic Phases */}
+          <div className="relative">
+            {/* Vertical Timeline Line */}
+            <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-orange-200 via-orange-400 to-orange-600"></div>
+            
+            <div className="space-y-12">
+              {[
+                {
+                  phase: "Phase 1",
+                  title: "Foundation & Community",
+                  icon: Users,
+                  color: "from-orange-400 to-orange-500",
+                  goals: [
+                    "Build an active community of 50+ members",
+                    "Establish strong leadership and organizational structure",
+                    "Create a welcoming environment for all skill levels"
+                  ],
+                  status: "completed",
+                  alignment: "left"
+                },
+                {
+                  phase: "Phase 2",
+                  title: "Skills & Knowledge",
+                  icon: Lightbulb,
+                  color: "from-orange-500 to-orange-600",
+                  goals: [
+                    "Organize technical workshops and bootcamps",
+                    "Provide hands-on training in emerging technologies",
+                    "Foster peer-to-peer learning and mentorship"
+                  ],
+                  status: "in-progress",
+                  alignment: "right"
+                },
+                {
+                  phase: "Phase 3",
+                  title: "Innovation & Projects",
+                  icon: Rocket,
+                  color: "from-orange-600 to-red-500",
+                  goals: [
+                    "Launch collaborative projects solving real problems",
+                    "Participate in hackathons and competitions",
+                    "Build innovative prototypes and applications"
+                  ],
+                  status: "in-progress",
+                  alignment: "left"
+                },
+                {
+                  phase: "Phase 4",
+                  title: "Recognition & Growth",
+                  icon: Award,
+                  color: "from-orange-600 to-red-600",
+                  goals: [
+                    "Win awards and recognition at national level",
+                    "Expand partnerships with industry leaders",
+                    "Become a model IEEE CS chapter"
+                  ],
+                  status: "upcoming",
+                  alignment: "right"
+                },
+                {
+                  phase: "Phase 5",
+                  title: "Impact & Legacy",
+                  icon: TrendingUp,
+                  color: "from-red-500 to-red-600",
+                  goals: [
+                    "Create lasting impact in tech community",
+                    "Mentor next generation of tech leaders",
+                    "Contribute to technological advancement in Tunisia"
+                  ],
+                  status: "upcoming",
+                  alignment: "left"
+                }
+              ].map((phase, index) => (
+                <div 
+                  key={index} 
+                  className={`relative animate-on-scroll ${phase.alignment === "right" ? "lg:ml-auto" : ""} lg:w-1/2 ${phase.alignment === "right" ? "lg:pl-16" : "lg:pr-16"}`}
+                >
+                  {/* Timeline Node */}
+                  <div className={`hidden lg:flex absolute top-8 ${phase.alignment === "left" ? "right-0 translate-x-1/2" : "left-0 -translate-x-1/2"} w-16 h-16 rounded-full bg-gradient-to-br ${phase.color} shadow-lg items-center justify-center z-10 ring-4 ring-white`}>
+                    <phase.icon className="h-7 w-7 text-white flex-shrink-0" />
+                  </div>
+
+                  {/* Content Card */}
+                  <div className={`group relative bg-gradient-to-br from-white to-orange-50 rounded-2xl p-8 border-2 ${
+                    phase.status === "completed" ? "border-green-300 bg-green-50/50" :
+                    phase.status === "in-progress" ? "border-orange-300" : "border-gray-200"
+                  } hover:border-orange-400 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1`}>
+                    
+                    {/* Status Badge */}
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold mb-4 ${
+                      phase.status === "completed" ? "bg-green-100 text-green-700" :
+                      phase.status === "in-progress" ? "bg-orange-100 text-orange-700" : "bg-gray-100 text-gray-600"
+                    }`}>
+                      {phase.status === "completed" ? "✓ Achieved" : phase.status === "in-progress" ? "⚡ In Progress" : "🎯 Upcoming"}
+                    </div>
+
+                    {/* Mobile Icon */}
+                    <div className={`lg:hidden inline-flex p-4 rounded-xl bg-gradient-to-br ${phase.color} mb-4 shadow-lg`}>
+                      <phase.icon className="h-6 w-6 text-white" />
+                    </div>
+
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <span className="text-sm font-bold text-orange-600 uppercase tracking-wide">{phase.phase}</span>
+                        <h3 className="text-2xl font-bold text-gray-900 mt-1 group-hover:text-orange-600 transition-colors">
+                          {phase.title}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <ul className="space-y-3 mt-4">
+                      {phase.goals.map((goal, goalIndex) => (
+                        <li key={goalIndex} className="flex items-start gap-3 text-gray-700">
+                          <CheckCircle2 className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
+                            phase.status === "completed" ? "text-green-600" : "text-orange-500"
+                          }`} />
+                          <span className="leading-relaxed">{goal}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Progress Indicator */}
+                    {phase.status === "in-progress" && (
+                      <div className="mt-6 pt-6 border-t border-orange-200">
+                        <div className="flex items-center justify-between text-sm mb-2">
+                          <span className="font-semibold text-gray-700">Progress</span>
+                          <span className="font-bold text-orange-600">70%</span>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-orange-500 to-orange-600 rounded-full animate-pulse" style={{ width: "70%" }}></div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>

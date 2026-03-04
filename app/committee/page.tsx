@@ -143,7 +143,7 @@ export default function CommitteePage() {
                     className={committeeImages.chair.className}
                   />
                   <div className="text-left">
-                    <p className="font-semibold text-gray-900">Nour Touihri</p>
+                    <p className="font-semibold text-gray-900">Yosr Hadj Ali</p>
                     <p className="text-orange-600">Chairwoman, CS ISIMM</p>
                   </div>
                 </div>

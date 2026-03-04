@@ -1,4 +1,4 @@
-// Logo configuration for the WIE ISIMM website
+// Logo configuration for the CS ISIMM website
 export const logos = {
   cs: {
     src: "/logos/ieee-cs-logo.png",
@@ -14,23 +14,16 @@ export const logos = {
     height: 75,
     className: "h-16 w-auto",
   },
-  ieee: {
-    src: "/logos/ieee-tunisia-logo.png",
-    alt: "IEEE Tunisia Section",
+  ieeeIsimmSb: {
+    src: "/logos/logo-isimm-sb.png",
+    alt: "IEEE ISIMM Student Branch",
     width: 180,
     height: 75,
     className: "h-16 w-auto",
   },
-  ieeeWhite: {
-    src: "/logos/logo-tunisia-section-white.png",
-    alt: "IEEE Tunisia Section (white)",
-    width: 180,
-    height: 75,
-    className: "h-16 w-auto",
-  },
-  ieeeMobile: {
-    src: "/logos/ieee-tunisia-logo.png",
-    alt: "IEEE Tunisia Section",
+  ieeeIsimmSbMobile: {
+    src: "/logos/logo-isimm-sb.png",
+    alt: "IEEE ISIMM Student Branch",
     width: 140,
     height: 60,
     className: "h-12 w-auto",

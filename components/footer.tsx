@@ -29,7 +29,6 @@ const Footer = () => {
     { name: "Executive Committee", href: "/committee" },
     { name: "Events", href: "/events" },
     { name: "Projects", href: "/projects" },
-    { name: "Contact", href: "/contact" },
   ]
 
   return (
@@ -38,9 +37,9 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Logo and Description */}
           <div className="md:col-span-2">
-            <div className="flex items-center mb-4">
+            <Link href="/" className="flex items-center mb-4 w-fit">
               <Logo type="csWhite" className="h-12 w-auto" />
-            </div>
+            </Link>
             <p className="text-gray-300 mb-6 leading-relaxed">
               IEEE Computer Society ISIMM Student Branch. Empowering students in computer science and engineering 
               through professional development, networking, and technical excellence opportunities.
@@ -104,9 +103,14 @@ const Footer = () => {
             </p>
             <div className="flex items-center mt-4 md:mt-0">
               <span className="text-gray-400 text-sm mr-2">Powered by</span>
-              <div className="flex items-center">
-                <Logo type="ieeeWhite" className="h-6 w-auto" />
-              </div>
+              <Link 
+                href="https://isimm.ieee.tn/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center"
+              >
+                <Logo type="ieeeIsimmSb" className="h-6 w-auto" />
+              </Link>
             </div>
           </div>
         </div>
