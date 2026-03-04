@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { toast } from "sonner"
-import { Toaster } from "@/components/ui/sonner"
 
 interface Member {
   _id: string
@@ -172,9 +171,8 @@ export default function XPManagement() {
   }
 
   const handleAddXP = async () => {
-    if (!selectedMember || !xpForm.xpToAdd) {
-      setSuccessMessage("Please enter XP amount")
-      setShowSuccessDialog(true)
+    if (!selectedMember || !xpForm.xpToAdd || xpForm.xpToAdd <= 0) {
+      toast.error("Please enter a valid XP amount (greater than 0)")
       return
     }
 
@@ -189,24 +187,22 @@ export default function XPManagement() {
       )
       
       if (response.success) {
-        loadMembers()
+        await loadMembers()
         setShowXPDialog(false)
         setXpForm({ xpToAdd: 0, reason: "", eventName: "" })
         
         if (response.leveledUp) {
-          setSuccessMessage(`🎉 ${memberName} leveled up to Level ${response.newLevel}!`)
+          toast.success(`🎉 ${memberName} leveled up to Level ${response.newLevel}!`)
         } else {
-          setSuccessMessage(`✅ ${xpForm.xpToAdd} XP added successfully to ${memberName}!`)
+          toast.success(`✅ ${xpForm.xpToAdd} XP added successfully to ${memberName}!`)
         }
-        setShowSuccessDialog(true)
       } else {
-        setSuccessMessage(response.message || "Failed to add XP")
-        setShowSuccessDialog(true)
+        toast.error(response.message || "Failed to add XP")
+        console.error('API Error:', response)
       }
     } catch (error) {
       console.error('Error adding XP:', error)
-      setSuccessMessage("Failed to add XP")
-      setShowSuccessDialog(true)
+      toast.error("Failed to add XP. Check console for details.")
     } finally {
       setLoading(false)
     }
@@ -252,9 +248,7 @@ export default function XPManagement() {
   }
 
   return (
-    <>
-      <Toaster position="top-center" />
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header Stats */}
       <div className="grid md:grid-cols-4 gap-4">
         <Card>
@@ -538,8 +532,12 @@ export default function XPManagement() {
               <Input
                 id="xpAmount"
                 type="number"
-                value={xpForm.xpToAdd}
-                onChange={(e) => setXpForm({ ...xpForm, xpToAdd: parseInt(e.target.value) || 0 })}
+                min="1"
+                value={xpForm.xpToAdd || ""}
+                onChange={(e) => {
+                  const value = e.target.value ? parseInt(e.target.value, 10) : 0
+                  setXpForm({ ...xpForm, xpToAdd: isNaN(value) ? 0 : value })
+                }}
                 placeholder="50"
               />
               <p className="text-xs text-gray-500">Suggested: Workshop (50 XP), Event (100 XP), Competition (200 XP)</p>
@@ -735,7 +733,6 @@ export default function XPManagement() {
           </div>
         </DialogContent>
       </Dialog>
-      </div>
-    </>
+    </div>
   )
 }

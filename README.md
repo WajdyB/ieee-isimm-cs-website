@@ -1,6 +1,6 @@
 # IEEE Computer Society ISIMM Website
 
-A modern, full-featured website for the IEEE Computer Society ISIMM Student Branch, built with Next.js 15 and MongoDB. This platform serves as the digital hub for the chapter, showcasing activities, managing events, and tracking member engagement through a comprehensive XP gamification system.
+A modern, full-featured website for the IEEE Computer Society ISIMM Student Branch, built with Next.js 16 and MongoDB. This platform serves as the digital hub for the chapter, showcasing activities, managing events, tracking member engagement through XP gamification, and coordinating projects via the Projects Hub.
 
 ---
 
@@ -13,17 +13,18 @@ The IEEE CS ISIMM website is designed to inspire, engage, and empower students i
 ## ✨ Key Features
 
 ### Public-Facing Features
-- **Dynamic Homepage** - Hero section with mission statement and recent events showcase
-- **About Page** - Interactive strategic roadmap with mission, vision, and core values
-- **Events System** - Browse past events with image galleries and detailed information
+- **Dynamic Homepage** - Hero section with mission statement, "CS ISIMM in Numbers" stats (+40 members, +3 awards, +30 events/year, +100 participants), focus areas, and recent events
+- **About Page** - Interactive strategic roadmap with mission, vision, core values; "Get Involved" links to recruitment form
+- **Our Activities** - Browse events in two categories: **Upcoming** (with registration links) and **Previous** (with photo galleries)
 - **Executive Committee** - Meet the leadership team with social media links
 - **Projects Portfolio** - Showcase chapter projects with GitHub and live demo links
 - **Responsive Design** - Fully optimized for mobile, tablet, and desktop devices
 
 ### Admin Dashboard (`/admin`)
-- **Event Management** - Create, view, and delete events with image uploads
+- **Event Management** - Create events as "Previous" or "Upcoming"; upcoming events require a registration link; previous events track attendees
 - **Image Storage** - MongoDB GridFS integration for scalable media handling
-- **XP System Management** - Complete member gamification platform
+- **XP System Management** - Complete member gamification platform (leaderboard, add/edit members, award XP)
+- **Projects Hub** - Create projects with deadline, assign members from XP system, track GitHub repo submissions
 - **Secure Authentication** - Password-protected admin access
 
 ### Member Portal (`/member`)
@@ -31,6 +32,8 @@ The IEEE CS ISIMM website is designed to inspire, engage, and empower students i
 - **Leaderboard** - See global rankings and compare progress
 - **Activity History** - Review all XP gains and milestones
 - **Achievement System** - Unlock badges for reaching goals
+- **Password Change** - Replace temporary password with a personal one
+- **My Projects** - View assigned projects from Projects Hub, submit GitHub repo links before deadline
 
 ---
 
@@ -109,9 +112,61 @@ Achievements unlock automatically when thresholds are reached!
 
 ---
 
+## 📂 Projects Hub
+
+A project management system for tracking member contributions and code submissions.
+
+### For Administrators
+
+**Creating Projects:**
+1. Navigate to Admin → "Projects Hub" tab
+2. Click "Add Project"
+3. Enter title, description, and deadline
+4. Select members to assign (from XP system)
+5. Members see assigned projects in their dashboard
+
+**Tracking Submissions:**
+- View which members have submitted their GitHub repos
+- Click links to view submitted repositories
+- Edit or delete projects as needed
+
+### For Members
+
+**Submitting Work:**
+1. Log in to Member Dashboard
+2. Scroll to "My Projects"
+3. For each assigned project, paste your GitHub repo URL
+4. Click "Submit" before the deadline
+5. Update submission by submitting again (overwrites previous)
+
+**Notes:**
+- Only valid `https://github.com/...` URLs are accepted
+- Submissions are locked after the deadline
+- One submission per member per project
+
+---
+
+## 📅 Events & Our Activities
+
+Events are categorized into two types:
+
+**Upcoming Events**
+- Created by admin with event type "Upcoming"
+- Require a registration link (e.g., Google Forms)
+- Display "Register Now" button linking to registration
+- No photo gallery (event hasn't happened yet)
+
+**Previous Events**
+- Created by admin with event type "Previous"
+- Include attendee count
+- Click to open lightbox with photo gallery
+- Backward compatible: existing events without type default to "Previous"
+
+---
+
 ## 🛠️ Tech Stack
 
-- **Framework:** Next.js 15 (App Router)
+- **Framework:** Next.js 16 (App Router)
 - **Language:** TypeScript + React 18
 - **Database:** MongoDB with GridFS
 - **Styling:** Tailwind CSS + shadcn/ui

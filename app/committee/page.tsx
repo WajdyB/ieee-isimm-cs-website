@@ -62,30 +62,7 @@ export default function CommitteePage() {
                     height={400}
                     className="w-full h-80 object-contain object-center group-hover:scale-105 transition-transform duration-300 p-2"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-orange-600/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute bottom-4 left-4 right-4 flex justify-center space-x-4">
-                      <Link
-                        href={member.facebook}
-                        target="_blank"
-                        className="bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30 transition-colors duration-200"
-                      >
-                        <Facebook className="h-5 w-5 text-white" />
-                      </Link>
-                      <Link
-                        href={`mailto:${member.email}`}
-                        className="bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30 transition-colors duration-200"
-                      >
-                        <Mail className="h-5 w-5 text-white" />
-                      </Link>
-                      <Link
-                        href={member.linkedin}
-                        target="_blank"
-                        className="bg-white/20 backdrop-blur-sm p-2 rounded-full hover:bg-white/30 transition-colors duration-200"
-                      >
-                        <Linkedin className="h-5 w-5 text-white" />
-                      </Link>
-                    </div>
-                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-orange-600/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
                 <div className="p-6 text-center">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-orange-500 transition-colors duration-200">

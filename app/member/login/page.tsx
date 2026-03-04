@@ -10,7 +10,6 @@ import { Eye, EyeOff, Loader2, Trophy, Lock } from "lucide-react"
 import { loginMember } from "@/lib/api"
 import Link from "next/link"
 import { toast } from "sonner"
-import { Toaster } from "@/components/ui/sonner"
 
 export default function MemberLogin() {
   const router = useRouter()
@@ -47,9 +46,7 @@ export default function MemberLogin() {
   }
 
   return (
-    <>
-      <Toaster position="top-center" />
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to Home */}
         <div className="mb-6 text-center">
@@ -139,6 +136,5 @@ export default function MemberLogin() {
         </Card>
       </div>
     </div>
-    </>
   )
 }

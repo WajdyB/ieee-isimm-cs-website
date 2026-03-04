@@ -55,6 +55,8 @@ export async function POST(request: NextRequest) {
       location: eventData.location,
       attendees: eventData.attendees || 0,
       images: eventData.images || [],
+      eventType: eventData.eventType || 'previous',
+      registrationLink: eventData.registrationLink || null,
       created_at: now,
       updated_at: now
     }

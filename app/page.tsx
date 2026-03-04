@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowRight, Brain, Code, Shield, Smartphone, Database, Cpu, Loader2 } from "lucide-react"
+import { ArrowRight, Brain, Code, Shield, Smartphone, Database, Cpu, Loader2, Users, Award, Calendar, TrendingUp } from "lucide-react"
 
 interface Event {
   _id: string
@@ -96,9 +96,14 @@ export default function HomePage() {
                 Empowering <span className="text-orange-500">Students</span> in Computer Science
               </h1>
               <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
-                Welcome to the IEEE Computer Society ISIMM Student Branch. We are dedicated to
-                inspiring, engaging, encouraging, and empowering students in computer science and engineering
-                through professional development, networking, and technical excellence opportunities.
+              The IEEE Computer Society ISIMM Student Chapter is an official student chapter of the IEEE
+              Computer Society, operating within the global network of the Institute of Electrical and Electronics
+              Engineers (IEEE).
+              We are a student led technical community dedicated to advancing computing knowledge, fostering
+              innovation, and supporting professional development. Through technical events, workshops, and
+              collaborative projects, we connect students with the international IEEE ecosystem and prepare future
+              technology leaders to contribute to the advancement of computing and society.
+
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button asChild size="lg" className="bg-orange-500 hover:bg-orange-600 text-white font-semibold">
@@ -196,6 +201,61 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* CS ISIMM in Numbers */}
+      <section className="py-20 bg-gradient-to-br from-orange-50 to-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 animate-on-scroll">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              CS ISIMM in <span className="text-orange-500">Numbers</span>
+            </h2>
+            <p className="text-xl text-gray-600">Our impact and achievements at a glance</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              {
+                icon: Users,
+                value: "+40",
+                label: "Active Members",
+                color: "from-orange-500 to-red-500",
+              },
+              {
+                icon: Award,
+                value: "+3",
+                label: "Awards",
+                color: "from-orange-500 to-yellow-500",
+              },
+              {
+                icon: Calendar,
+                value: "+30",
+                label: "Events Yearly",
+                color: "from-orange-600 to-orange-700",
+              },
+              {
+                icon: TrendingUp,
+                value: "+100",
+                label: "Participants Reached",
+                color: "from-orange-500 to-amber-500",
+              },
+            ].map((stat, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 animate-on-scroll group"
+              >
+                <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${stat.color} mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
+                  <stat.icon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-4xl font-bold text-gray-900 mb-2 group-hover:text-orange-600 transition-colors duration-300">
+                  {stat.value}
+                </h3>
+                <p className="text-gray-600 text-lg font-medium">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Mission Preview */}
       <section className="py-20 bg-gradient-to-r from-orange-600 to-orange-700 text-white">
         <div className="container mx-auto px-4">
@@ -267,12 +327,9 @@ export default function HomePage() {
                     <p className="text-gray-600 mb-2 text-sm">
                       {formatDate(event.date)} • {event.location}
                     </p>
-                    <p className="text-gray-600 mb-4 line-clamp-2">
+                    <p className="text-gray-600 line-clamp-3">
                       {event.description}
                     </p>
-                    <Button variant="outline" size="sm" className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white">
-                      View Details
-                    </Button>
                   </div>
                 </div>
               ))

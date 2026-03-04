@@ -12,6 +12,8 @@ export interface EventData {
   location: string
   attendees?: number
   images?: string[] // URLs returned from /api/upload, now served from MongoDB GridFS
+  eventType?: 'previous' | 'upcoming' // Type of event
+  registrationLink?: string // Registration link for upcoming events
 }
 
 // Authentication
@@ -142,6 +144,68 @@ export async function loginMember(email: string, password: string) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ email, password }),
+  })
+  return response.json()
+}
+
+export async function changeMemberPassword(id: string, currentPassword: string, newPassword: string) {
+  const response = await fetch(`/api/members/${id}/password`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  })
+  return response.json()
+}
+
+// Projects Hub API
+export interface ProjectData {
+  title: string
+  description: string
+  deadline: string
+  memberIds?: string[]
+}
+
+export async function getProjects(memberId?: string) {
+  const url = memberId ? `/api/projects?memberId=${memberId}` : '/api/projects'
+  const response = await fetch(url)
+  return response.json()
+}
+
+export async function getProject(id: string) {
+  const response = await fetch(`/api/projects/${id}`)
+  return response.json()
+}
+
+export async function createProject(projectData: ProjectData) {
+  const response = await fetch('/api/projects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(projectData),
+  })
+  return response.json()
+}
+
+export async function updateProject(id: string, projectData: Partial<ProjectData>) {
+  const response = await fetch(`/api/projects/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(projectData),
+  })
+  return response.json()
+}
+
+export async function deleteProject(id: string) {
+  const response = await fetch(`/api/projects/${id}`, { method: 'DELETE' })
+  return response.json()
+}
+
+export async function submitProject(projectId: string, memberId: string, githubRepo: string) {
+  const response = await fetch(`/api/projects/${projectId}/submit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ memberId, githubRepo }),
   })
   return response.json()
 } 

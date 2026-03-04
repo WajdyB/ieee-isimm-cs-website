@@ -306,7 +306,7 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="https://www.facebook.com/ieee.cs.isimm"
+                href="https://docs.google.com/forms/d/e/1FAIpQLSf0m5l1VVyXbZ0R96UV5C53vz1mc8G80nxB8v_T32lfT93qDQ/viewform"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white text-orange-500 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200"

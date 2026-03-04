@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import { Calendar, MapPin, Users, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
+import { Calendar, MapPin, Users, X, ChevronLeft, ChevronRight, Loader2, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 interface Event {
   _id: string
@@ -13,6 +14,8 @@ interface Event {
   location: string
   attendees: number
   images: string[]
+  eventType?: 'previous' | 'upcoming'
+  registrationLink?: string
   created_at: string
   updated_at: string
 }
@@ -22,6 +25,9 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  
+  const upcomingEvents = events.filter(e => e.eventType === 'upcoming')
+  const previousEvents = events.filter(e => !e.eventType || e.eventType === 'previous')
 
   // Load events from database
   useEffect(() => {
@@ -120,7 +126,7 @@ export default function EventsPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Our <span className="text-orange-500">Events</span>
+              Our <span className="text-orange-500">Activities</span>
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
               Discover our past events and see the impact we're making in the engineering community
@@ -129,22 +135,85 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {/* Events Grid */}
+      {/* Upcoming Events */}
+      {upcomingEvents.length > 0 && (
+        <section className="py-20 bg-gradient-to-br from-green-50 to-white">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Upcoming <span className="text-orange-500">Events</span>
+              </h2>
+              <p className="text-xl text-gray-600">Join us in our next activities and workshops</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {upcomingEvents.map((event) => (
+                <div
+                  key={event._id}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                >
+                  <div className="relative overflow-hidden">
+                    <Image
+                      src={event.images && event.images.length > 0 ? event.images[0] : "/placeholder.svg"}
+                      alt={event.title}
+                      width={400}
+                      height={250}
+                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement
+                        target.src = "/placeholder.svg"
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-orange-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full">
+                      <span className="text-sm font-bold">UPCOMING</span>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3 group-hover:text-orange-500 transition-colors duration-200">
+                      {event.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2">{event.description}</p>
+                    <div className="space-y-2 text-sm text-gray-500 mb-4">
+                      <div className="flex items-center">
+                        <Calendar className="h-4 w-4 mr-2 text-orange-600" />
+                        {formatDate(event.date)}
+                      </div>
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-2 text-orange-600" />
+                        {event.location}
+                      </div>
+                    </div>
+                    {event.registrationLink && (
+                      <Button
+                        asChild
+                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                      >
+                        <Link href={event.registrationLink} target="_blank">
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Register Now
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Previous Events */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">All Events ({events.length})</h2>
-            <Button 
-              onClick={handleRefresh} 
-              variant="outline"
-              size="sm"
-              className="border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white"
-            >
-              Refresh Events
-            </Button>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Previous <span className="text-orange-500">Events</span>
+            </h2>
+            <p className="text-xl text-gray-600">Explore our past activities and achievements</p>
           </div>
           
-          {events.length === 0 ? (
+          {previousEvents.length === 0 ? (
             <div className="text-center py-12">
               <div className="max-w-md mx-auto">
                 <div className="text-gray-400 mb-4">
@@ -152,19 +221,16 @@ export default function EventsPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Events Found</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Previous Events Found</h3>
                 <p className="text-gray-600 mb-4">
-                  There are currently no events scheduled. Check back soon for upcoming events!
-                </p>
-                <p className="text-sm text-gray-500">
-                  Events will appear here once they are added through the admin panel.
+                  There are currently no previous events to display.
                 </p>
               </div>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {events.map((event, index) => {
-                console.log('Rendering event:', event.title, 'at index:', index)
+              {previousEvents.map((event, index) => {
+                console.log('Rendering previous event:', event.title, 'at index:', index)
                 return (
                   <div
                     key={event._id}

@@ -11,8 +11,8 @@ import { Plus, Edit, Trash2, Upload, Eye, EyeOff, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { loginAdmin, getEvents, createEvent, deleteEvent, uploadImages, type EventData } from "@/lib/api"
 import XPManagement from "@/components/admin/xp-management"
+import ProjectsManagement from "@/components/admin/projects-management"
 import { toast } from "sonner"
-import { Toaster } from "@/components/ui/sonner"
 
 // Add local Event type for MongoDB
 interface Event {
@@ -23,6 +23,8 @@ interface Event {
   location: string
   attendees: number
   images: string[]
+  eventType?: 'previous' | 'upcoming'
+  registrationLink?: string
   created_at: string
   updated_at: string
 }
@@ -41,6 +43,8 @@ export default function AdminPage() {
     location: "",
     attendees: 0,
     images: [],
+    eventType: 'previous',
+    registrationLink: "",
   })
 
   // Load events on authentication
@@ -103,6 +107,11 @@ export default function AdminPage() {
       return
     }
 
+    if (newEvent.eventType === 'upcoming' && !newEvent.registrationLink) {
+      toast.error("Please provide a registration link for upcoming events")
+      return
+    }
+
     try {
       setLoading(true)
       const response = await createEvent(newEvent)
@@ -116,6 +125,8 @@ export default function AdminPage() {
           location: "",
           attendees: 0,
           images: [],
+          eventType: 'previous',
+          registrationLink: "",
         })
         toast.success("Event created successfully!")
       } else {
@@ -189,9 +200,7 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <>
-        <Toaster position="top-center" />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Admin Login</CardTitle>
@@ -240,14 +249,11 @@ export default function AdminPage() {
           </CardContent>
         </Card>
       </div>
-      </>
     )
   }
 
   return (
-    <>
-      <Toaster position="top-center" />
-      <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
@@ -261,6 +267,7 @@ export default function AdminPage() {
             <TabsTrigger value="events" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Manage Events</TabsTrigger>
             <TabsTrigger value="add-event" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Add New Event</TabsTrigger>
             <TabsTrigger value="members" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">XP System</TabsTrigger>
+            <TabsTrigger value="projects" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Projects Hub</TabsTrigger>
           </TabsList>
 
           <TabsContent value="events" className="space-y-6">
@@ -274,13 +281,27 @@ export default function AdminPage() {
                   {events.map((event) => (
                     <div key={event._id} className="border rounded-lg p-4 flex items-center justify-between hover:shadow-md transition-shadow duration-200">
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{event.title}</h3>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-lg">{event.title}</h3>
+                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                            event.eventType === 'upcoming' 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {event.eventType === 'upcoming' ? 'Upcoming' : 'Previous'}
+                          </span>
+                        </div>
                         <p className="text-gray-600 text-sm mb-2">{event.description}</p>
                         <div className="text-sm text-gray-500">
                           <span>
                             {event.date} • {event.location} • {event.attendees} attendees
                           </span>
                         </div>
+                        {event.registrationLink && (
+                          <div className="text-sm text-orange-600 mt-1">
+                            Registration: {event.registrationLink}
+                          </div>
+                        )}
                       </div>
                       <div className="flex space-x-2">
                         <Button onClick={() => handleDeleteEvent(event._id)} size="sm" variant="destructive">
@@ -302,7 +323,21 @@ export default function AdminPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
+                  <Label htmlFor="eventType">Event Type</Label>
+                  <select
+                    id="eventType"
+                    value={newEvent.eventType}
+                    onChange={(e) => setNewEvent({ ...newEvent, eventType: e.target.value as 'previous' | 'upcoming' })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  >
+                    <option value="previous">Previous</option>
+                    <option value="upcoming">Upcoming</option>
+                  </select>
+                </div>
+
+                {/* Common Fields */}
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title *</Label>
                   <Input
                     id="title"
                     value={newEvent.title}
@@ -311,7 +346,7 @@ export default function AdminPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">Description *</Label>
                   <Textarea
                     id="description"
                     value={newEvent.description}
@@ -321,7 +356,7 @@ export default function AdminPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="date">Date</Label>
+                    <Label htmlFor="date">Date *</Label>
                     <Input
                       id="date"
                       type="date"
@@ -330,7 +365,7 @@ export default function AdminPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
+                    <Label htmlFor="location">Location *</Label>
                     <Input
                       id="location"
                       value={newEvent.location}
@@ -339,16 +374,33 @@ export default function AdminPage() {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="attendees">Number of Attendees</Label>
-                  <Input
-                    id="attendees"
-                    type="number"
-                    value={newEvent.attendees}
-                    onChange={(e) => setNewEvent({ ...newEvent, attendees: Number.parseInt(e.target.value) || 0 })}
-                    placeholder="Enter number of attendees"
-                  />
-                </div>
+
+                {/* Conditional Fields Based on Event Type */}
+                {newEvent.eventType === 'previous' ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="attendees">Number of Attendees</Label>
+                    <Input
+                      id="attendees"
+                      type="number"
+                      value={newEvent.attendees}
+                      onChange={(e) => setNewEvent({ ...newEvent, attendees: Number.parseInt(e.target.value) || 0 })}
+                      placeholder="Enter number of attendees"
+                    />
+                    <p className="text-sm text-gray-500">How many people attended this event?</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="registrationLink">Registration Link *</Label>
+                    <Input
+                      id="registrationLink"
+                      type="url"
+                      value={newEvent.registrationLink || ""}
+                      onChange={(e) => setNewEvent({ ...newEvent, registrationLink: e.target.value })}
+                      placeholder="https://forms.google.com/..."
+                    />
+                    <p className="text-sm text-gray-500">Link where participants can register for this upcoming event</p>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label>Event Images</Label>
                   <div className="grid grid-cols-3 gap-4 mb-4">
@@ -402,9 +454,12 @@ export default function AdminPage() {
           <TabsContent value="members">
             <XPManagement />
           </TabsContent>
+
+          <TabsContent value="projects">
+            <ProjectsManagement />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
-    </>
   )
 }

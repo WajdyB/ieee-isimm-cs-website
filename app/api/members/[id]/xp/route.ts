@@ -58,11 +58,15 @@ export async function POST(request: NextRequest, context: Context) {
     const newAchievements = checkAchievements(newXP, newLevel, member.achievements || [])
 
     const updateData: any = {
-      xp: newXP,
-      level: newLevel,
-      lastActivity: new Date(),
-      updated_at: new Date(),
-      $push: { activityHistory: activity }
+      $set: {
+        xp: newXP,
+        level: newLevel,
+        lastActivity: new Date(),
+        updated_at: new Date()
+      },
+      $push: {
+        activityHistory: activity
+      }
     }
 
     if (newAchievements.length > 0) {

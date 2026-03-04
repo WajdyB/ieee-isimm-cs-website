@@ -6,11 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Star, Award, TrendingUp, Calendar, LogOut, Crown, Target, Zap, Gift } from "lucide-react"
-import { getMembers, getMember } from "@/lib/api"
+import { Trophy, Star, Award, TrendingUp, Calendar, LogOut, Crown, Target, Zap, Gift, Key, Eye, EyeOff, Loader2, FolderKanban, Github, ExternalLink } from "lucide-react"
+import { getMembers, getMember, changeMemberPassword, getProjects, submitProject } from "@/lib/api"
 import Link from "next/link"
 import { toast } from "sonner"
-import { Toaster } from "@/components/ui/sonner"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 
 interface Member {
   _id: string
@@ -52,12 +54,40 @@ interface Reward {
   icon: string
 }
 
+interface ProjectSubmission {
+  memberId: unknown
+  githubRepo: string
+  submittedAt: string
+}
+
+interface HubProject {
+  _id: string
+  title: string
+  description: string
+  deadline: string
+  memberIds: string[]
+  submissions?: ProjectSubmission[]
+}
+
 export default function MemberDashboard() {
   const router = useRouter()
   const [member, setMember] = useState<Member | null>(null)
   const [allMembers, setAllMembers] = useState<Member[]>([])
   const [loading, setLoading] = useState(true)
   const [rank, setRank] = useState(0)
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: ""
+  })
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [changingPassword, setChangingPassword] = useState(false)
+  const [myProjects, setMyProjects] = useState<HubProject[]>([])
+  const [submittingProjectId, setSubmittingProjectId] = useState<string | null>(null)
+  const [githubRepoInput, setGithubRepoInput] = useState<Record<string, string>>({})
 
   useEffect(() => {
     loadMemberData()
@@ -89,6 +119,12 @@ export default function MemberDashboard() {
         const memberRank = membersResponse.data.findIndex((m: Member) => m._id === memberData._id) + 1
         setRank(memberRank)
       }
+
+      // Fetch projects assigned to this member
+      const projectsResponse = await getProjects(memberData._id)
+      if (projectsResponse.success) {
+        setMyProjects(projectsResponse.data || [])
+      }
     } catch (error) {
       console.error('Error loading member data:', error)
     } finally {
@@ -100,6 +136,77 @@ export default function MemberDashboard() {
     localStorage.removeItem('memberData')
     router.push('/member/login')
   }
+
+  const handleChangePassword = async () => {
+    if (!member) return
+
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      toast.error("Please fill in all password fields")
+      return
+    }
+
+    if (passwordForm.newPassword.length < 6) {
+      toast.error("New password must be at least 6 characters long")
+      return
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error("New passwords don't match")
+      return
+    }
+
+    try {
+      setChangingPassword(true)
+      const response = await changeMemberPassword(member._id, passwordForm.currentPassword, passwordForm.newPassword)
+      
+      if (response.success) {
+        toast.success("Password changed successfully!")
+        setShowPasswordDialog(false)
+        setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" })
+      } else {
+        toast.error(response.message || "Failed to change password")
+      }
+    } catch (error) {
+      console.error('Error changing password:', error)
+      toast.error("Failed to change password. Please try again.")
+    } finally {
+      setChangingPassword(false)
+    }
+  }
+
+  const handleSubmitProject = async (projectId: string) => {
+    if (!member) return
+    const repo = githubRepoInput[projectId]?.trim()
+    if (!repo || !repo.startsWith("https://github.com/")) {
+      toast.error("Please enter a valid GitHub repository URL")
+      return
+    }
+    try {
+      setSubmittingProjectId(projectId)
+      const res = await submitProject(projectId, member._id, repo)
+      if (res.success) {
+        setMyProjects((prev) =>
+          prev.map((p) => (p._id === projectId ? res.data : p))
+        )
+        setGithubRepoInput((prev) => ({ ...prev, [projectId]: "" }))
+        toast.success("Submission received!")
+      } else {
+        toast.error(res.message || "Failed to submit")
+      }
+    } catch (error) {
+      toast.error("Failed to submit")
+    } finally {
+      setSubmittingProjectId(null)
+    }
+  }
+
+  const getMySubmission = (project: HubProject) =>
+    project.submissions?.find((s) => {
+      const mid = s.memberId
+      if (!mid) return false
+      const str = typeof mid === "string" ? mid : (mid as { toString: () => string }).toString()
+      return str === member?._id
+    })
 
   const calculateProgress = (xp: number) => {
     const currentLevelXP = (Math.floor(xp / 100)) * 100
@@ -141,9 +248,7 @@ export default function MemberDashboard() {
   }
 
   return (
-    <>
-      <Toaster position="top-center" />
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
       {/* Header */}
       <div className="bg-white border-b border-orange-100 shadow-sm">
         <div className="container mx-auto px-4 py-4">
@@ -151,10 +256,16 @@ export default function MemberDashboard() {
             <Link href="/" className="text-sm text-gray-600 hover:text-orange-600">
               ← Back to Website
             </Link>
-            <Button variant="outline" onClick={handleLogout} className="border-orange-500 text-orange-600">
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowPasswordDialog(true)} className="border-orange-500 text-orange-600">
+                <Key className="h-4 w-4 mr-2" />
+                Change Password
+              </Button>
+              <Button variant="outline" onClick={handleLogout} className="border-orange-500 text-orange-600">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -334,6 +445,94 @@ export default function MemberDashboard() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Projects Hub */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <FolderKanban className="h-5 w-5 mr-2 text-orange-600" />
+                  My Projects
+                </CardTitle>
+                <CardDescription>Projects assigned to you. Submit your GitHub repo before the deadline.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {myProjects.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <FolderKanban className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                    <p>No projects assigned yet. Stay tuned for new challenges!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {myProjects.map((project) => {
+                      const submission = getMySubmission(project)
+                      const deadline = new Date(project.deadline)
+                      const isPastDeadline = new Date() > deadline
+                      const canSubmit = !isPastDeadline
+
+                      return (
+                        <div
+                          key={project._id}
+                          className="p-4 bg-gray-50 rounded-xl border border-gray-200 hover:border-orange-200 transition-colors"
+                        >
+                          <h4 className="font-bold text-gray-900 mb-1">{project.title}</h4>
+                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{project.description}</p>
+                          <p className="text-xs text-gray-500 mb-3 flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            Deadline: {formatDate(project.deadline)}
+                            {isPastDeadline && (
+                              <span className="ml-2 text-red-600 font-medium">(Passed)</span>
+                            )}
+                          </p>
+                          {submission ? (
+                            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                              <span className="text-sm text-green-700 font-medium">Submitted</span>
+                              <a
+                                href={submission.githubRepo}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-orange-600 hover:underline text-sm"
+                              >
+                                <Github className="h-4 w-4" />
+                                View Repo
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            </div>
+                          ) : canSubmit ? (
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="https://github.com/username/repo"
+                                value={githubRepoInput[project._id] || ""}
+                                onChange={(e) =>
+                                  setGithubRepoInput((prev) => ({
+                                    ...prev,
+                                    [project._id]: e.target.value,
+                                  }))
+                                }
+                                className="flex-1 text-sm"
+                              />
+                              <Button
+                                size="sm"
+                                onClick={() => handleSubmitProject(project._id)}
+                                disabled={submittingProjectId === project._id}
+                                className="bg-orange-500 hover:bg-orange-600 shrink-0"
+                              >
+                                {submittingProjectId === project._id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  "Submit"
+                                )}
+                              </Button>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-gray-500">Submission deadline has passed</p>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Right Column - Leaderboard & Info */}
@@ -413,7 +612,134 @@ export default function MemberDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Change Password Dialog */}
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-orange-600" />
+              Change Password
+            </DialogTitle>
+            <DialogDescription>
+              Update your password. Make sure to use a strong password with at least 6 characters.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="currentPassword">Current Password *</Label>
+              <div className="relative">
+                <Input
+                  id="currentPassword"
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                  placeholder="Enter current password"
+                  disabled={changingPassword}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  disabled={changingPassword}
+                >
+                  {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">New Password *</Label>
+              <div className="relative">
+                <Input
+                  id="newPassword"
+                  type={showNewPassword ? "text" : "password"}
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                  placeholder="Enter new password (min 6 characters)"
+                  disabled={changingPassword}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  disabled={changingPassword}
+                >
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm New Password *</Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                  placeholder="Re-enter new password"
+                  disabled={changingPassword}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={changingPassword}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+
+            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+              <p className="text-xs text-orange-800">
+                <strong>Password Requirements:</strong> At least 6 characters long
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowPasswordDialog(false)
+                setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" })
+                setShowCurrentPassword(false)
+                setShowNewPassword(false)
+                setShowConfirmPassword(false)
+              }}
+              disabled={changingPassword}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleChangePassword}
+              className="bg-orange-500 hover:bg-orange-600"
+              disabled={changingPassword}
+            >
+              {changingPassword ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Key className="h-4 w-4 mr-2" />
+                  Change Password
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
-    </>
   )
 }
