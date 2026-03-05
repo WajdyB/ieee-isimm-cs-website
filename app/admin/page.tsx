@@ -15,6 +15,7 @@ import XPGuideManagement from "@/components/admin/xp-guide-management"
 import RewardsManagement from "@/components/admin/rewards-management"
 import ProjectsManagement from "@/components/admin/projects-management"
 import AvailableProjectsManagement from "@/components/admin/available-projects-management"
+import ExcomManagement from "@/components/admin/excom-management"
 import { toast } from "sonner"
 
 // Add local Event type for MongoDB
@@ -274,6 +275,7 @@ export default function AdminPage() {
             <TabsTrigger value="rewards" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Rewards</TabsTrigger>
             <TabsTrigger value="projects" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Projects Hub</TabsTrigger>
             <TabsTrigger value="available-projects" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Available Projects</TabsTrigger>
+            <TabsTrigger value="excom" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Excom</TabsTrigger>
           </TabsList>
 
           <TabsContent value="events" className="space-y-6">
@@ -475,6 +477,10 @@ export default function AdminPage() {
 
           <TabsContent value="available-projects">
             <AvailableProjectsManagement />
+          </TabsContent>
+
+          <TabsContent value="excom">
+            <ExcomManagement />
           </TabsContent>
         </Tabs>
       </div>

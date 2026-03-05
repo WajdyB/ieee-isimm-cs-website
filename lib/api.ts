@@ -314,4 +314,44 @@ export async function updateAvailableProject(id: string, data: Partial<Available
 export async function deleteAvailableProject(id: string) {
   const response = await fetch(`/api/available-projects/${id}`, { method: 'DELETE' })
   return response.json()
+}
+
+// Excom (Executive Committee) API
+export interface ExcomMemberData {
+  name: string
+  position: string
+  image?: string | null
+  facebook?: string
+  email?: string
+  linkedin?: string
+  order?: number
+  mandate?: string | null
+}
+
+export async function getExcomMembers() {
+  const response = await fetch('/api/excom')
+  return response.json()
+}
+
+export async function createExcomMember(data: ExcomMemberData) {
+  const response = await fetch('/api/excom', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return response.json()
+}
+
+export async function updateExcomMember(id: string, data: Partial<ExcomMemberData>) {
+  const response = await fetch(`/api/excom/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return response.json()
+}
+
+export async function deleteExcomMember(id: string) {
+  const response = await fetch(`/api/excom/${id}`, { method: 'DELETE' })
+  return response.json()
 } 
