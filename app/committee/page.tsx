@@ -158,15 +158,16 @@ export default function CommitteePage() {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {committeeMembers.map((member) => (
+              {committeeMembers.map((member, index) => (
                 <div key={member._id} className="group animate-on-scroll">
                   <div className="bg-white rounded-2xl shadow-md hover:shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:-translate-y-1">
-                    <div className="relative aspect-[4/5] overflow-hidden">
+                    <div className="relative aspect-[4/5] overflow-hidden bg-gray-100">
                       <Image
                         src={member.image || "/placeholder.svg"}
                         alt={member.name}
                         width={360}
                         height={450}
+                        priority={index < 6}
                         className={`absolute inset-0 w-full h-full object-cover object-[50%_25%] transition-transform duration-500 group-hover:scale-105 ${member.position === "Vice Chair" ? "scale-90" : ""}`}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-orange-600/40 via-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

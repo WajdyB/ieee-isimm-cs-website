@@ -23,7 +23,8 @@ export async function GET(request: NextRequest, context: Context) {
     return new Response(stream as any, {
       headers: {
         'Content-Type': file.contentType || 'application/octet-stream',
-        'Content-Disposition': `inline; filename="${file.filename}"`
+        'Content-Disposition': `inline; filename="${file.filename}"`,
+        'Cache-Control': 'public, max-age=31536000, immutable',
       }
     });
   } catch (error) {
