@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Star, Award, TrendingUp, Calendar, LogOut, Crown, Target, Zap, Gift, Key, Eye, EyeOff, Loader2, FolderKanban, Github, ExternalLink } from "lucide-react"
-import { getMembers, getMember, changeMemberPassword, getProjects, submitProject } from "@/lib/api"
+import { Trophy, Star, Award, TrendingUp, Calendar, LogOut, Crown, Target, Zap, Gift, Key, Eye, EyeOff, Loader2, FolderKanban, Github, ExternalLink, BookOpen, Check, Lock, FileText } from "lucide-react"
+import { getMembers, getMember, changeMemberPassword, getProjects, submitProject, getXPGuide, getRewards } from "@/lib/api"
 import Link from "next/link"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -54,6 +54,15 @@ interface Reward {
   icon: string
 }
 
+interface XPReward {
+  _id: string
+  requiredXP: number
+  title: string
+  description: string
+  icon: string
+  order: number
+}
+
 interface ProjectSubmission {
   memberId: unknown
   githubRepo: string
@@ -66,6 +75,7 @@ interface HubProject {
   description: string
   deadline: string
   memberIds: string[]
+  specificationBook?: string
   submissions?: ProjectSubmission[]
 }
 
@@ -88,6 +98,9 @@ export default function MemberDashboard() {
   const [myProjects, setMyProjects] = useState<HubProject[]>([])
   const [submittingProjectId, setSubmittingProjectId] = useState<string | null>(null)
   const [githubRepoInput, setGithubRepoInput] = useState<Record<string, string>>({})
+  const [xpGuideContent, setXpGuideContent] = useState("")
+  const [xpRewards, setXpRewards] = useState<XPReward[]>([])
+  const [showGuideDialog, setShowGuideDialog] = useState(false)
 
   useEffect(() => {
     loadMemberData()
@@ -124,6 +137,16 @@ export default function MemberDashboard() {
       const projectsResponse = await getProjects(memberData._id)
       if (projectsResponse.success) {
         setMyProjects(projectsResponse.data || [])
+      }
+
+      // Fetch XP guide and rewards
+      const guideRes = await getXPGuide()
+      if (guideRes.success && guideRes.data) {
+        setXpGuideContent(guideRes.data.content || "")
+      }
+      const rewardsRes = await getRewards()
+      if (rewardsRes.success) {
+        setXpRewards(rewardsRes.data || [])
       }
     } catch (error) {
       console.error('Error loading member data:', error)
@@ -368,6 +391,30 @@ export default function MemberDashboard() {
               </CardContent>
             </Card>
 
+            {/* XP Guide */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <BookOpen className="h-5 w-5 mr-2 text-orange-600" />
+                  XP Guide
+                </CardTitle>
+                <CardDescription>Scoring rules and how to earn XP in our community</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 mb-4">
+                  Learn how the XP system works, what activities earn points, and how to level up.
+                </p>
+                <Button
+                  variant="outline"
+                  className="w-full border-orange-500 text-orange-600 hover:bg-orange-50"
+                  onClick={() => setShowGuideDialog(true)}
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  View Full Guide
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Achievements */}
             <Card>
               <CardHeader>
@@ -449,11 +496,20 @@ export default function MemberDashboard() {
             {/* Projects Hub */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  <FolderKanban className="h-5 w-5 mr-2 text-orange-600" />
-                  My Projects
-                </CardTitle>
-                <CardDescription>Projects assigned to you. Submit your GitHub repo before the deadline.</CardDescription>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <CardTitle className="flex items-center">
+                      <FolderKanban className="h-5 w-5 mr-2 text-orange-600" />
+                      My Projects
+                    </CardTitle>
+                    <CardDescription>Projects assigned to you. Submit your GitHub repo before the deadline.</CardDescription>
+                  </div>
+                  <Button asChild className="shrink-0 bg-orange-500 text-white hover:bg-orange-600">
+                    <Link href="/member/available-projects">
+                      Available Projects
+                    </Link>
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {myProjects.length === 0 ? (
@@ -483,6 +539,17 @@ export default function MemberDashboard() {
                               <span className="ml-2 text-red-600 font-medium">(Passed)</span>
                             )}
                           </p>
+                          {project.specificationBook && (
+                            <a
+                              href={project.specificationBook}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-sm text-orange-600 hover:underline mb-3"
+                            >
+                              <FileText className="h-4 w-4" />
+                              View specification book
+                            </a>
+                          )}
                           {submission ? (
                             <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                               <span className="text-sm text-green-700 font-medium">Submitted</span>
@@ -599,6 +666,64 @@ export default function MemberDashboard() {
               </CardContent>
             </Card>
 
+            {/* Rewards */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Gift className="h-5 w-5 mr-2 text-orange-600" />
+                  Rewards
+                </CardTitle>
+                <CardDescription>Unlock rewards as you earn more XP</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {xpRewards.length === 0 ? (
+                  <div className="text-center py-6 text-gray-500">
+                    <Gift className="h-10 w-10 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm">No rewards defined yet. Check back soon!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3 max-h-72 overflow-y-auto">
+                    {xpRewards.map((reward) => {
+                      const unlocked = member.xp >= reward.requiredXP
+                      return (
+                        <div
+                          key={reward._id}
+                          className={`p-4 rounded-xl border-2 transition-all ${
+                            unlocked
+                              ? "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200"
+                              : "bg-gray-50 border-gray-200 opacity-75"
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
+                                unlocked ? "bg-green-500/20 text-green-700" : "bg-gray-200 text-gray-500"
+                              }`}
+                            >
+                              {unlocked ? <Check className="h-5 w-5" /> : <Lock className="h-5 w-5" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-semibold text-gray-900">{reward.title}</h4>
+                              <p className="text-sm text-gray-600 mt-0.5">{reward.description || "—"}</p>
+                              <span
+                                className={`inline-flex items-center mt-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  unlocked ? "bg-green-100 text-green-800" : "bg-gray-200 text-gray-600"
+                                }`}
+                              >
+                                {reward.requiredXP.toLocaleString()} XP
+                                {unlocked ? " ✓ Unlocked" : ` — ${(reward.requiredXP - member.xp).toLocaleString()} more to go`}
+                              </span>
+                            </div>
+                            <span className="text-2xl flex-shrink-0">{reward.icon || "🎁"}</span>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Motivation Card */}
             <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
               <CardContent className="p-6">
@@ -612,6 +737,76 @@ export default function MemberDashboard() {
           </div>
         </div>
       </div>
+
+      {/* XP Guide Dialog */}
+      <Dialog open={showGuideDialog} onOpenChange={setShowGuideDialog}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-orange-600" />
+              XP Guide — Scoring Rules
+            </DialogTitle>
+            <DialogDescription>
+              Official rules for earning XP and leveling up in our community
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto py-4 pr-2">
+            {xpGuideContent ? (
+              <div className="xp-guide-content prose prose-sm max-w-none prose-headings:text-orange-700 prose-strong:text-gray-900">
+                {xpGuideContent.split("\n").map((line, i) => {
+                  const trimmed = line.trim()
+                  if (!trimmed) return <br key={i} />
+                  if (trimmed.startsWith("### "))
+                    return (
+                      <h4 key={i} className="text-base font-bold mt-4 mb-2 text-gray-800">
+                        {trimmed.slice(4).replace(/\*\*(.+?)\*\*/g, "$1")}
+                      </h4>
+                    )
+                  if (trimmed.startsWith("## "))
+                    return (
+                      <h3 key={i} className="text-lg font-bold mt-4 mb-2 text-orange-700">
+                        {trimmed.slice(3).replace(/\*\*(.+?)\*\*/g, "$1")}
+                      </h3>
+                    )
+                  if (trimmed.startsWith("# "))
+                    return (
+                      <h2 key={i} className="text-xl font-bold mt-4 mb-2 text-orange-600">
+                        {trimmed.slice(2).replace(/\*\*(.+?)\*\*/g, "$1")}
+                      </h2>
+                    )
+                  if (trimmed.startsWith("- "))
+                    return (
+                      <p key={i} className="ml-4 flex gap-2 text-gray-700">
+                        <span className="text-orange-500">•</span>
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: trimmed
+                              .slice(2)
+                              .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"),
+                          }}
+                        />
+                      </p>
+                    )
+                  return (
+                    <p
+                      key={i}
+                      className="text-gray-700 leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: trimmed.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"),
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <BookOpen className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                <p>No guide has been set up yet. Check back later!</p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Change Password Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>

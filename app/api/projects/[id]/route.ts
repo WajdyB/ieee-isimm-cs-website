@@ -15,7 +15,28 @@ export async function GET(request: NextRequest, context: Context) {
     }
 
     const db = await getDb()
-    const project = await db.collection('projects').findOne({ _id: new ObjectId(id) })
+    const pipeline = [
+      { $match: { _id: new ObjectId(id) } },
+      {
+        $lookup: {
+          from: 'available_projects',
+          localField: 'availableProjectId',
+          foreignField: '_id',
+          as: 'availableProject',
+        },
+      },
+      { $unwind: { path: '$availableProject', preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          title: { $ifNull: ['$availableProject.title', '$title'] },
+          overview: { $ifNull: ['$availableProject.overview', '$description'] },
+          description: { $ifNull: ['$availableProject.overview', '$description'] },
+          specificationBook: '$availableProject.specificationBook',
+        },
+      },
+    ]
+    const result = await db.collection('projects').aggregate(pipeline).toArray()
+    const project = result[0]
 
     if (!project) {
       return NextResponse.json({ success: false, message: 'Project not found' }, { status: 404 })
@@ -42,13 +63,11 @@ export async function PUT(request: NextRequest, context: Context) {
     }
 
     const body = await request.json()
-    const { title, description, deadline, memberIds } = body
+    const { deadline, memberIds } = body
 
     const db = await getDb()
     const updateData: Record<string, unknown> = { updated_at: new Date() }
 
-    if (title !== undefined) updateData.title = title
-    if (description !== undefined) updateData.description = description
     if (deadline !== undefined) updateData.deadline = new Date(deadline)
     if (memberIds !== undefined) {
       updateData.memberIds = memberIds.map((mid: string) => new ObjectId(mid))
@@ -62,8 +81,28 @@ export async function PUT(request: NextRequest, context: Context) {
       return NextResponse.json({ success: false, message: 'Project not found' }, { status: 404 })
     }
 
-    const project = await db.collection('projects').findOne({ _id: new ObjectId(id) })
-    return NextResponse.json({ success: true, data: project, message: 'Project updated' })
+    const pipeline = [
+      { $match: { _id: new ObjectId(id) } },
+      {
+        $lookup: {
+          from: 'available_projects',
+          localField: 'availableProjectId',
+          foreignField: '_id',
+          as: 'availableProject',
+        },
+      },
+      { $unwind: { path: '$availableProject', preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          title: { $ifNull: ['$availableProject.title', '$title'] },
+          overview: { $ifNull: ['$availableProject.overview', '$description'] },
+          description: { $ifNull: ['$availableProject.overview', '$description'] },
+          specificationBook: '$availableProject.specificationBook',
+        },
+      },
+    ]
+    const updated = await db.collection('projects').aggregate(pipeline).toArray()
+    return NextResponse.json({ success: true, data: updated[0], message: 'Project updated' })
   } catch (error) {
     console.error('Error updating project:', error)
     return NextResponse.json(

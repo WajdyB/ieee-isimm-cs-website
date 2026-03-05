@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,11 +13,25 @@ import { toast } from "sonner"
 
 export default function MemberLogin() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const rawRedirect = searchParams.get("redirect")
+  const redirectTo =
+    rawRedirect && rawRedirect.startsWith("/member/") ? rawRedirect : "/member/dashboard"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // If already logged in and has redirect, go there
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const memberData = localStorage.getItem("memberData")
+      if (memberData && redirectTo) {
+        router.push(redirectTo)
+      }
+    }
+  }, [router, redirectTo])
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -33,7 +47,7 @@ export default function MemberLogin() {
       if (response.success) {
         // Store member data in localStorage
         localStorage.setItem('memberData', JSON.stringify(response.data))
-        router.push('/member/dashboard')
+        router.push(redirectTo)
       } else {
         setError(response.message || "Login failed")
       }

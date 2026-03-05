@@ -150,7 +150,8 @@ export default function EventsPage() {
               {upcomingEvents.map((event) => (
                 <div
                   key={event._id}
-                  className="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2"
+                  onClick={() => openLightbox(event)}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden group hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
                 >
                   <div className="relative overflow-hidden">
                     <Image
@@ -185,15 +186,17 @@ export default function EventsPage() {
                       </div>
                     </div>
                     {event.registrationLink && (
-                      <Button
-                        asChild
-                        className="w-full bg-orange-500 hover:bg-orange-600 text-white"
-                      >
-                        <Link href={event.registrationLink} target="_blank">
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          Register Now
-                        </Link>
-                      </Button>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          asChild
+                          className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                        >
+                          <Link href={event.registrationLink} target="_blank">
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Register Now
+                          </Link>
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -285,7 +288,7 @@ export default function EventsPage() {
         </div>
       </section>
 
-      {/* Lightbox Modal */}
+      {/* Event Details Modal (Upcoming & Previous) */}
       {selectedEvent && (
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
           <div className="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-xl overflow-hidden flex flex-col">
@@ -297,8 +300,8 @@ export default function EventsPage() {
               <X className="h-6 w-6 text-gray-800" />
             </button>
 
-            {/* Image Navigation */}
-            {selectedEvent.images && selectedEvent.images.length > 1 && (
+            {/* Image Navigation - Previous events only (multiple images) */}
+            {selectedEvent.eventType !== "upcoming" && selectedEvent.images && selectedEvent.images.length > 1 && (
               <>
                 <button
                   onClick={prevImage}
@@ -327,6 +330,11 @@ export default function EventsPage() {
                   target.src = "/placeholder.svg"
                 }}
               />
+              {selectedEvent.eventType === "upcoming" && (
+                <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full">
+                  <span className="text-sm font-bold">UPCOMING</span>
+                </div>
+              )}
             </div>
 
             {/* Scrollable Content Section */}
@@ -334,7 +342,7 @@ export default function EventsPage() {
               <div className="p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-3">{selectedEvent.title}</h2>
                 <p className="text-gray-600 mb-4 leading-relaxed">{selectedEvent.description}</p>
-                <div className="grid md:grid-cols-3 gap-4 text-sm">
+                <div className={`grid gap-4 text-sm ${selectedEvent.eventType === "upcoming" ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-2 text-orange-600" />
                     {formatDate(selectedEvent.date)}
@@ -343,14 +351,28 @@ export default function EventsPage() {
                     <MapPin className="h-4 w-4 mr-2 text-orange-600" />
                     {selectedEvent.location}
                   </div>
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-2 text-orange-600" />
-                    {selectedEvent.attendees} attendees
-                  </div>
+                  {selectedEvent.eventType !== "upcoming" && (
+                    <div className="flex items-center">
+                      <Users className="h-4 w-4 mr-2 text-orange-600" />
+                      {selectedEvent.attendees} attendees
+                    </div>
+                  )}
                 </div>
 
-                {/* Image Thumbnails */}
-                {selectedEvent.images && selectedEvent.images.length > 1 && (
+                {/* Register Button - Upcoming events only */}
+                {selectedEvent.eventType === "upcoming" && selectedEvent.registrationLink && (
+                  <div className="mt-6">
+                    <Button asChild className="bg-orange-500 hover:bg-orange-600 text-white">
+                      <Link href={selectedEvent.registrationLink} target="_blank">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Register Now
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+
+                {/* Image Thumbnails - Previous events only */}
+                {selectedEvent.eventType !== "upcoming" && selectedEvent.images && selectedEvent.images.length > 1 && (
                   <div className="mt-6">
                     <div className="flex space-x-2 overflow-x-auto pb-2">
                       {selectedEvent.images.map((image, index) => (

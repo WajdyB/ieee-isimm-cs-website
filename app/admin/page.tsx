@@ -11,7 +11,10 @@ import { Plus, Edit, Trash2, Upload, Eye, EyeOff, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { loginAdmin, getEvents, createEvent, deleteEvent, uploadImages, type EventData } from "@/lib/api"
 import XPManagement from "@/components/admin/xp-management"
+import XPGuideManagement from "@/components/admin/xp-guide-management"
+import RewardsManagement from "@/components/admin/rewards-management"
 import ProjectsManagement from "@/components/admin/projects-management"
+import AvailableProjectsManagement from "@/components/admin/available-projects-management"
 import { toast } from "sonner"
 
 // Add local Event type for MongoDB
@@ -267,7 +270,10 @@ export default function AdminPage() {
             <TabsTrigger value="events" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Manage Events</TabsTrigger>
             <TabsTrigger value="add-event" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Add New Event</TabsTrigger>
             <TabsTrigger value="members" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">XP System</TabsTrigger>
+            <TabsTrigger value="xp-guide" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">XP Guide</TabsTrigger>
+            <TabsTrigger value="rewards" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Rewards</TabsTrigger>
             <TabsTrigger value="projects" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Projects Hub</TabsTrigger>
+            <TabsTrigger value="available-projects" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">Available Projects</TabsTrigger>
           </TabsList>
 
           <TabsContent value="events" className="space-y-6">
@@ -455,8 +461,20 @@ export default function AdminPage() {
             <XPManagement />
           </TabsContent>
 
+          <TabsContent value="xp-guide">
+            <XPGuideManagement />
+          </TabsContent>
+
+          <TabsContent value="rewards">
+            <RewardsManagement />
+          </TabsContent>
+
           <TabsContent value="projects">
             <ProjectsManagement />
+          </TabsContent>
+
+          <TabsContent value="available-projects">
+            <AvailableProjectsManagement />
           </TabsContent>
         </Tabs>
       </div>

@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Github, ExternalLink, Users, Sparkles, Layers, Globe } from "lucide-react"
+import { Github, ExternalLink, Users, Sparkles, Layers, Globe, FolderKanban, Loader2 } from "lucide-react"
+import { getAvailableProjects } from "@/lib/api"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -52,9 +53,32 @@ At 4:30 PM, the competition concluded, and the top 5 teams presented their solut
   },
 ]
 
+type AvailableProject = {
+  _id: string
+  category: 'web_development' | 'mobile_development' | 'software_engineering'
+  title: string
+  overview: string
+  technologies: string[]
+  domain: string
+  estimatedTime: string
+}
+
 export default function ProjectsPage() {
   const observerRef = useRef<IntersectionObserver | null>(null)
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const [availableProjects, setAvailableProjects] = useState<AvailableProject[]>([])
+  const [availableLoading, setAvailableLoading] = useState(true)
+
+  useEffect(() => {
+    getAvailableProjects()
+      .then((res) => {
+        if (res.success && Array.isArray(res.data)) {
+          setAvailableProjects(res.data)
+        }
+      })
+      .catch(() => setAvailableProjects([]))
+      .finally(() => setAvailableLoading(false))
+  }, [])
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver(
@@ -68,11 +92,15 @@ export default function ProjectsPage() {
       { threshold: 0.1 },
     )
 
-    const elements = document.querySelectorAll(".animate-on-scroll")
-    elements.forEach((el) => observerRef.current?.observe(el))
+    const observeElements = () => {
+      const elements = document.querySelectorAll(".animate-on-scroll")
+      elements.forEach((el) => observerRef.current?.observe(el))
+    }
 
+    observeElements()
+    // Re-run when available projects load so newly rendered cards get observed
     return () => observerRef.current?.disconnect()
-  }, [])
+  }, [availableProjects])
 
   return (
     <div className="min-h-screen">
@@ -123,6 +151,46 @@ export default function ProjectsPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Upcoming / Available Projects */}
+      <section className="py-20 bg-orange-50/50 border-b border-orange-100">
+        <div className="container mx-auto px-4">
+          <div className="mb-12 text-center animate-on-scroll">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Upcoming Projects</h2>
+            <p className="mt-4 text-lg text-gray-600">
+              Open projects you can join. Members can browse full details and apply from their dashboard.
+            </p>
+          </div>
+          {availableLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
+            </div>
+          ) : availableProjects.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {availableProjects.map((project) => (
+                <article
+                  key={project._id}
+                  className="animate-on-scroll visible rounded-2xl border border-orange-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{project.title}</h3>
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">{project.overview}</p>
+                  <Button asChild size="sm" variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50">
+                    <Link href={`/member/login?redirect=${encodeURIComponent("/member/available-projects")}`}>
+                      <FolderKanban className="h-4 w-4 mr-2" />
+                      View Details (Members)
+                    </Link>
+                  </Button>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <FolderKanban className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+              <p>No upcoming projects at the moment. Check back soon!</p>
+            </div>
+          )}
         </div>
       </section>
 

@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { FolderKanban, Plus, Trash2, Users, Calendar, Github, Loader2 } from "lucide-react"
+import { FolderKanban, UserPlus, Trash2, Users, Calendar, Github, Loader2 } from "lucide-react"
 import {
   getProjects,
   getMembers,
+  getAvailableProjects,
   createProject,
   updateProject,
   deleteProject,
-  type ProjectData,
+  type ProjectAssignmentData,
 } from "@/lib/api"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { toast } from "sonner"
@@ -27,15 +27,23 @@ interface Member {
 }
 
 interface Submission {
-  memberId: { toString: () => string }
+  memberId: { toString: () => string } | string
   githubRepo: string
   submittedAt: string
 }
 
-interface Project {
+interface AvailableProject {
   _id: string
   title: string
-  description: string
+  overview: string
+  category: string
+}
+
+interface Project {
+  _id: string
+  availableProjectId?: string
+  title: string
+  overview?: string
   deadline: string
   memberIds: string[]
   submissions?: Submission[]
@@ -44,15 +52,15 @@ interface Project {
 
 export default function ProjectsManagement() {
   const [projects, setProjects] = useState<Project[]>([])
+  const [availableProjects, setAvailableProjects] = useState<AvailableProject[]>([])
   const [members, setMembers] = useState<Member[]>([])
   const [loading, setLoading] = useState(true)
-  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showAssignDialog, setShowAssignDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [newProject, setNewProject] = useState<ProjectData>({
-    title: "",
-    description: "",
+  const [assignForm, setAssignForm] = useState<ProjectAssignmentData>({
+    availableProjectId: "",
     deadline: "",
     memberIds: [],
   })
@@ -64,9 +72,14 @@ export default function ProjectsManagement() {
   const loadData = async () => {
     try {
       setLoading(true)
-      const [projRes, memRes] = await Promise.all([getProjects(), getMembers()])
-      if (projRes.success) setProjects(projRes.data)
-      if (memRes.success) setMembers(memRes.data)
+      const [projRes, memRes, availRes] = await Promise.all([
+        getProjects(),
+        getMembers(),
+        getAvailableProjects(),
+      ])
+      if (projRes.success) setProjects(projRes.data || [])
+      if (memRes.success) setMembers(memRes.data || [])
+      if (availRes.success) setAvailableProjects(availRes.data || [])
     } catch (error) {
       console.error("Error loading data:", error)
     } finally {
@@ -74,25 +87,29 @@ export default function ProjectsManagement() {
     }
   }
 
-  const handleAddProject = async () => {
-    if (!newProject.title || !newProject.description || !newProject.deadline) {
-      toast.error("Please fill in title, description, and deadline")
+  const handleAssignProject = async () => {
+    if (!assignForm.availableProjectId || !assignForm.deadline) {
+      toast.error("Please select a project and set a deadline")
+      return
+    }
+    if (!assignForm.memberIds?.length) {
+      toast.error("Please assign at least one member")
       return
     }
     try {
       setLoading(true)
-      const res = await createProject(newProject)
+      const res = await createProject(assignForm)
       if (res.success) {
         setProjects([res.data, ...projects])
-        setShowAddDialog(false)
-        setNewProject({ title: "", description: "", deadline: "", memberIds: [] })
-        toast.success("Project created!")
+        setShowAssignDialog(false)
+        setAssignForm({ availableProjectId: "", deadline: "", memberIds: [] })
+        toast.success("Project assigned!")
       } else {
-        toast.error(res.message || "Failed to create project")
+        toast.error(res.message || "Failed to assign project")
       }
     } catch (error) {
       console.error(error)
-      toast.error("Failed to create project")
+      toast.error("Failed to assign project")
     } finally {
       setLoading(false)
     }
@@ -103,8 +120,6 @@ export default function ProjectsManagement() {
     try {
       setLoading(true)
       const res = await updateProject(selectedProject._id, {
-        title: selectedProject.title,
-        description: selectedProject.description,
         deadline: selectedProject.deadline,
         memberIds: selectedProject.memberIds || [],
       })
@@ -112,12 +127,12 @@ export default function ProjectsManagement() {
         setProjects(projects.map((p) => (p._id === selectedProject._id ? res.data : p)))
         setShowEditDialog(false)
         setSelectedProject(null)
-        toast.success("Project updated!")
+        toast.success("Assignment updated!")
       } else {
         toast.error(res.message || "Failed to update")
       }
     } catch (error) {
-      toast.error("Failed to update project")
+      toast.error("Failed to update assignment")
     } finally {
       setLoading(false)
     }
@@ -132,12 +147,12 @@ export default function ProjectsManagement() {
         setProjects(projects.filter((p) => p._id !== selectedProject._id))
         setShowDeleteDialog(false)
         setSelectedProject(null)
-        toast.success("Project deleted")
+        toast.success("Assignment removed")
       } else {
         toast.error(res.message || "Failed to delete")
       }
     } catch (error) {
-      toast.error("Failed to delete project")
+      toast.error("Failed to delete assignment")
     } finally {
       setLoading(false)
     }
@@ -163,8 +178,10 @@ export default function ProjectsManagement() {
     project.submissions?.find((s) => {
       const mid = s.memberId
       if (!mid) return false
-      return typeof mid === 'string' ? mid === memberId : (mid as { toString: () => string }).toString() === memberId
+      return typeof mid === "string" ? mid === memberId : (mid as { toString: () => string }).toString() === memberId
     })
+
+  const getAvailTitle = (id: string) => availableProjects.find((a) => a._id === id)?.title ?? "Unknown project"
 
   if (loading && projects.length === 0) {
     return (
@@ -177,18 +194,40 @@ export default function ProjectsManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-2xl font-bold">Projects Hub</h3>
-        <Button onClick={() => setShowAddDialog(true)} className="bg-orange-500 hover:bg-orange-600">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Project
+        <div>
+          <h3 className="text-2xl font-bold">Projects Hub</h3>
+          <p className="text-sm text-gray-600 mt-0.5">Assign available projects to members from the XP System</p>
+        </div>
+        <Button
+          onClick={() => {
+            setAssignForm({ availableProjectId: "", deadline: "", memberIds: [] })
+            setShowAssignDialog(true)
+          }}
+          className="bg-orange-500 hover:bg-orange-600"
+          disabled={availableProjects.length === 0}
+        >
+          <UserPlus className="h-4 w-4 mr-2" />
+          Assign Project
         </Button>
       </div>
+
+      {availableProjects.length === 0 && (
+        <Card className="border-amber-200 bg-amber-50/50">
+          <CardContent className="py-4">
+            <p className="text-sm text-amber-800">
+              No available projects yet. Add projects in the <strong>Available Projects</strong> tab first.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="space-y-4">
         {projects.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-gray-500">
-              No projects yet. Create one to assign to members.
+              <FolderKanban className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+              <p>No assignments yet.</p>
+              <p className="text-sm mt-1">Assign an available project to members to get started.</p>
             </CardContent>
           </Card>
         ) : (
@@ -199,8 +238,10 @@ export default function ProjectsManagement() {
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle>{project.title}</CardTitle>
-                      <CardDescription className="mt-1 line-clamp-2">{project.description}</CardDescription>
+                      <CardTitle>{project.title || getAvailTitle(project.availableProjectId || "")}</CardTitle>
+                      {project.overview && (
+                        <CardDescription className="mt-1 line-clamp-2">{project.overview}</CardDescription>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -272,66 +313,68 @@ export default function ProjectsManagement() {
         )}
       </div>
 
-      {/* Add Project Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Add New Project</DialogTitle>
-            <DialogDescription>Create a project. You can assign members now or later.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
+      {/* Assign Project Dialog */}
+      <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+        <DialogContent className="max-w-lg max-h-[90vh] flex flex-col overflow-hidden p-0">
+          <div className="shrink-0 px-6 py-4 border-b">
+            <DialogHeader>
+              <DialogTitle>Assign Project to Members</DialogTitle>
+              <DialogDescription>
+                Choose an available project and assign it to members. They will see it in their dashboard and can submit their work.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
             <div className="space-y-2">
-              <Label>Title</Label>
-              <Input
-                value={newProject.title}
-                onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
-                placeholder="Project title"
-              />
+              <Label>Available Project *</Label>
+              <select
+                value={assignForm.availableProjectId}
+                onChange={(e) => setAssignForm({ ...assignForm, availableProjectId: e.target.value })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="">Select a project...</option>
+                {availableProjects.map((ap) => (
+                  <option key={ap._id} value={ap._id}>
+                    {ap.title}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
-              <Textarea
-                value={newProject.description}
-                onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                placeholder="Project description and requirements"
-                rows={4}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Deadline</Label>
+              <Label>Deadline *</Label>
               <Input
                 type="date"
-                value={newProject.deadline}
-                onChange={(e) => setNewProject({ ...newProject, deadline: e.target.value })}
+                value={assignForm.deadline}
+                onChange={(e) => setAssignForm({ ...assignForm, deadline: e.target.value })}
               />
             </div>
             <div className="space-y-2">
-              <Label>Assign Members (optional)</Label>
+              <Label>Assign Members *</Label>
               <select
                 value=""
                 onChange={(e) => {
                   const id = e.target.value
                   if (!id) return
-                  const ids = newProject.memberIds || []
+                  const ids = assignForm.memberIds || []
                   if (!ids.includes(id)) {
-                    setNewProject({ ...newProject, memberIds: [...ids, id] })
+                    setAssignForm({ ...assignForm, memberIds: [...ids, id] })
                   }
                   e.target.value = ""
                 }}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               >
                 <option value="">Select member to add...</option>
                 {members
-                  .filter((m) => !newProject.memberIds?.includes(m._id))
+                  .filter((m) => !assignForm.memberIds?.includes(m._id))
                   .map((m) => (
                     <option key={m._id} value={m._id}>
                       {m.firstName} {m.lastName} ({m.email})
                     </option>
                   ))}
               </select>
-              {(newProject.memberIds?.length ?? 0) > 0 && (
+              {(assignForm.memberIds?.length ?? 0) > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {newProject.memberIds?.map((id) => {
+                  {assignForm.memberIds?.map((id) => {
                     const m = members.find((x) => x._id === id)
                     return (
                       <span
@@ -342,9 +385,9 @@ export default function ProjectsManagement() {
                         <button
                           type="button"
                           onClick={() =>
-                            setNewProject({
-                              ...newProject,
-                              memberIds: newProject.memberIds?.filter((x) => x !== id) || [],
+                            setAssignForm({
+                              ...assignForm,
+                              memberIds: assignForm.memberIds?.filter((x) => x !== id) || [],
                             })
                           }
                           className="hover:text-orange-600 ml-1"
@@ -362,40 +405,31 @@ export default function ProjectsManagement() {
               )}
             </div>
           </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+          <div className="shrink-0 border-t px-6 py-4 flex justify-end gap-2 bg-gray-50">
+            <Button variant="outline" onClick={() => setShowAssignDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddProject} disabled={loading} className="bg-orange-500 hover:bg-orange-600">
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Create"}
+            <Button onClick={handleAssignProject} disabled={loading} className="bg-orange-500 hover:bg-orange-600">
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Assign"}
             </Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Project Dialog */}
+      {/* Edit Assignment Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Edit Project</DialogTitle>
-            <DialogDescription>Update project details and assigned members</DialogDescription>
+            <DialogTitle>Edit Assignment</DialogTitle>
+            <DialogDescription>
+              Update deadline or assigned members. The project cannot be changed.
+            </DialogDescription>
           </DialogHeader>
           {selectedProject && (
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input
-                  value={selectedProject.title}
-                  onChange={(e) => setSelectedProject({ ...selectedProject, title: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={selectedProject.description}
-                  onChange={(e) => setSelectedProject({ ...selectedProject, description: e.target.value })}
-                  rows={4}
-                />
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm font-medium text-gray-700">Project</p>
+                <p className="text-gray-900">{selectedProject.title}</p>
               </div>
               <div className="space-y-2">
                 <Label>Deadline</Label>
@@ -410,7 +444,7 @@ export default function ProjectsManagement() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Assign Members (optional)</Label>
+                <Label>Assigned Members</Label>
                 <select
                   value=""
                   onChange={(e) => {
@@ -419,7 +453,7 @@ export default function ProjectsManagement() {
                     toggleMember(selectedProject, id)
                     e.target.value = ""
                   }}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
                   <option value="">Select member to add...</option>
                   {members
@@ -471,17 +505,27 @@ export default function ProjectsManagement() {
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Project</DialogTitle>
+            <DialogTitle>Remove Assignment</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete "{selectedProject?.title}"? This cannot be undone.
+              Are you sure you want to remove this assignment? Members will no longer see it. Submissions are preserved.
             </DialogDescription>
           </DialogHeader>
+          {selectedProject && (
+            <div className="py-2">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="font-semibold">{selectedProject.title}</p>
+                <p className="text-sm text-gray-600">
+                  {selectedProject.memberIds?.length || 0} member(s) assigned
+                </p>
+              </div>
+            </div>
+          )}
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteProject} disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete"}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Remove"}
             </Button>
           </div>
         </DialogContent>

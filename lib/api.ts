@@ -52,6 +52,19 @@ export async function uploadImages(files: File[]) {
   return result
 }
 
+// Specification book (PDF) upload
+export async function uploadSpecificationBook(file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await fetch('/api/upload/specification', {
+    method: 'POST',
+    body: formData,
+  })
+
+  return response.json()
+}
+
 // Events API
 export async function getEvents() {
   const response = await fetch('/api/events')
@@ -159,10 +172,9 @@ export async function changeMemberPassword(id: string, currentPassword: string, 
   return response.json()
 }
 
-// Projects Hub API
-export interface ProjectData {
-  title: string
-  description: string
+// Projects Hub API (assignments: assign available projects to members)
+export interface ProjectAssignmentData {
+  availableProjectId: string
   deadline: string
   memberIds?: string[]
 }
@@ -178,7 +190,7 @@ export async function getProject(id: string) {
   return response.json()
 }
 
-export async function createProject(projectData: ProjectData) {
+export async function createProject(projectData: ProjectAssignmentData) {
   const response = await fetch('/api/projects', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -187,7 +199,7 @@ export async function createProject(projectData: ProjectData) {
   return response.json()
 }
 
-export async function updateProject(id: string, projectData: Partial<ProjectData>) {
+export async function updateProject(id: string, projectData: Partial<ProjectAssignmentData>) {
   const response = await fetch(`/api/projects/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -207,5 +219,99 @@ export async function submitProject(projectId: string, memberId: string, githubR
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ memberId, githubRepo }),
   })
+  return response.json()
+}
+
+// XP Guide API
+export async function getXPGuide() {
+  const response = await fetch('/api/xp-guide')
+  return response.json()
+}
+
+export async function updateXPGuide(content: string) {
+  const response = await fetch('/api/xp-guide', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content }),
+  })
+  return response.json()
+}
+
+// Rewards API
+export interface RewardData {
+  requiredXP: number
+  title: string
+  description?: string
+  icon?: string
+  order?: number
+}
+
+export async function getRewards() {
+  const response = await fetch('/api/rewards')
+  return response.json()
+}
+
+export async function createReward(data: RewardData) {
+  const response = await fetch('/api/rewards', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return response.json()
+}
+
+export async function updateReward(id: string, data: Partial<RewardData>) {
+  const response = await fetch(`/api/rewards/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return response.json()
+}
+
+export async function deleteReward(id: string) {
+  const response = await fetch(`/api/rewards/${id}`, { method: 'DELETE' })
+  return response.json()
+}
+
+// Available Projects API (for members to browse - open projects to work on)
+export type AvailableProjectCategory = 'web_development' | 'mobile_development' | 'software_engineering'
+
+export interface AvailableProjectData {
+  category: AvailableProjectCategory
+  title: string
+  overview: string
+  technologies?: string[] | string
+  domain?: string
+  estimatedTime?: string
+  specificationBook?: string
+}
+
+export async function getAvailableProjects(category?: AvailableProjectCategory) {
+  const url = category ? `/api/available-projects?category=${category}` : '/api/available-projects'
+  const response = await fetch(url)
+  return response.json()
+}
+
+export async function createAvailableProject(data: AvailableProjectData) {
+  const response = await fetch('/api/available-projects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return response.json()
+}
+
+export async function updateAvailableProject(id: string, data: Partial<AvailableProjectData>) {
+  const response = await fetch(`/api/available-projects/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return response.json()
+}
+
+export async function deleteAvailableProject(id: string) {
+  const response = await fetch(`/api/available-projects/${id}`, { method: 'DELETE' })
   return response.json()
 } 
