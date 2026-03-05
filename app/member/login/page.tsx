@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +11,7 @@ import { loginMember } from "@/lib/api"
 import Link from "next/link"
 import { toast } from "sonner"
 
-export default function MemberLogin() {
+function MemberLoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const rawRedirect = searchParams.get("redirect")
@@ -150,5 +150,37 @@ export default function MemberLogin() {
         </Card>
       </div>
     </div>
+  )
+}
+
+function LoginFallback() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="mb-6 text-center">
+          <div className="h-4 w-24 bg-gray-200 rounded mx-auto animate-pulse" />
+        </div>
+        <Card className="shadow-2xl border-orange-100">
+          <CardHeader className="text-center space-y-3">
+            <div className="w-16 h-16 border-2 border-orange-200 rounded-full flex items-center justify-center mx-auto animate-pulse bg-orange-50" />
+            <div className="h-8 w-48 bg-gray-200 rounded mx-auto animate-pulse" />
+            <div className="h-4 w-64 bg-gray-100 rounded mx-auto animate-pulse" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="h-10 bg-gray-100 rounded animate-pulse" />
+            <div className="h-10 bg-gray-100 rounded animate-pulse" />
+            <div className="h-11 bg-orange-100 rounded animate-pulse" />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+export default function MemberLoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <MemberLoginForm />
+    </Suspense>
   )
 }
