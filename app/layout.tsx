@@ -4,6 +4,8 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import BackToTop from "@/components/back-to-top"
+import ContactFloatingButton from "@/components/contact-floating-button"
 import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -27,6 +29,8 @@ export default function RootLayout({
         <Header />
         <main className="pt-20">{children}</main>
         <Footer />
+        <ContactFloatingButton />
+        <BackToTop />
         <Toaster position="top-center" />
       </body>
     </html>
